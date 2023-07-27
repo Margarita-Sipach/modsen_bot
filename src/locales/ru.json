@@ -1,0 +1,3 @@
+{
+	"hello": "Your long string here. ${ctx.message.from.first_name}"
+}
