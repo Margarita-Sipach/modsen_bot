@@ -4,6 +4,9 @@ import { Context } from "./types";
 import dotenv from 'dotenv';
 import path from 'path';
 import {MongoClient} from 'mongodb';
+import { session } from "telegraf";
+import { Scenes } from 'telegraf';
+import { helpScene, startScene } from "./controllers";
 
 dotenv.config();
 
@@ -27,8 +30,14 @@ startDb()
 
 const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
 
-bot.use(i18n.middleware());
+const stage = new Scenes.Stage();
+stage.register(startScene, helpScene);
 
-bot.start(ctx => ctx.reply(ctx.i18n.t('hello', {ctx})));
+bot.use(session());
+bot.use(i18n.middleware());
+bot.use(stage.middleware() as any);
+
+bot.start((ctx: Context) => ctx.scene.enter('start'));
+bot.help((ctx: Context) => ctx.scene.enter('help'));
 
 bot.launch();
