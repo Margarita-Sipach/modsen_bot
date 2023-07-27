@@ -1,3 +1,5 @@
 {
-	"hello": "Your long string here. ${ctx.message.from.first_name}"
+	"start": {
+		"hello": "Добрый день ${ctx.message.from.first_name} ❤️"
+	}
 }
