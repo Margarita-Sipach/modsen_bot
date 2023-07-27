@@ -6,7 +6,8 @@ import path from 'path';
 import {MongoClient} from 'mongodb';
 import { session } from "telegraf";
 import { Scenes } from 'telegraf';
-import { helpScene, startScene } from "./controllers";
+import { catScene, dogScene, helpScene, startScene } from "./controllers";
+import { Animal } from "./util/classes/animal";
 
 dotenv.config();
 
@@ -31,13 +32,19 @@ startDb()
 const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
 
 const stage = new Scenes.Stage();
-stage.register(startScene, helpScene);
+stage.register(startScene, helpScene, catScene, dogScene);
 
 bot.use(session());
 bot.use(i18n.middleware());
 bot.use(stage.middleware() as any);
 
+bot.context.cat = new Animal('cat')
+bot.context.dog = new Animal('dog')
+
 bot.start((ctx: Context) => ctx.scene.enter('start'));
 bot.help((ctx: Context) => ctx.scene.enter('help'));
+
+bot.command('cat', (ctx: Context) => ctx.scene.enter('cat'));
+bot.command('dog', (ctx: Context) => ctx.scene.enter('dog'));
 
 bot.launch();
