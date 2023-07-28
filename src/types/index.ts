@@ -6,4 +6,5 @@ export interface Context extends TelegrafContext {
 	scene: any;
 	cat: any;
 	dog: any;
+	place: any;
 }
