@@ -5,5 +5,10 @@
 	},
 	"animal": {
 		"author": "Фотограф: ${photographer}"
+	},
+	"place": {
+		"city": "Какой город интересует?",
+		"more": "Подробнее",
+		"info": "<b>${title}</b>\n${text}"
 	}
 }

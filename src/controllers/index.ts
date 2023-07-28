@@ -1,5 +1,6 @@
-import { startScene } from './start/index';
-import { helpScene } from './help/index';
-import { catScene, dogScene } from './animal/index';
+import { startScene } from './start';
+import { helpScene } from './help';
+import { catScene, dogScene } from './animal';
+import { placeScene } from './place/index';
 
-export {startScene, helpScene, catScene, dogScene}
+export {startScene, helpScene, catScene, dogScene, placeScene}
