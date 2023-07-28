@@ -10,9 +10,9 @@ export class Compilation<T> extends Parent{
 
 	protected getRandomPositiveInteger = (max: number) => Math.floor(Math.random() * max);
 
-	protected async getAllElements(){}
+	protected async getAllElements(param?: string){}
 
-	async getNewElement(){
+	async getNewElement(param?: string){
 		return {}
 	}
 }
