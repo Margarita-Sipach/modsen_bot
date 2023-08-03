@@ -31,20 +31,13 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 			case 'task-delete':
 				await ctx.task.delete(userId);
 				await ctx.reply(ctx.i18n.t('task.delete-success'));
-				await ctx.scene.enter('task');
 				break;			
 			case 'task-complete':
 				await ctx.task.complete(userId);
 				await ctx.reply(ctx.i18n.t('task.complete-success'));
-				await ctx.scene.enter('task');
 				break;		
-			// case 'task-update': 
-			// 	ctx.scene.enter('task-update');
-			// 	break;
-			// case 'weather-unfollow':
-			// 	await ctx.weather.unfollow(ctx);
-			// 	break;
 		}
-		return ctx.scene.leave();
+		
+		await ctx.scene.enter('task');
 	},
 );
