@@ -6,7 +6,7 @@ export const startScene = new Scenes.WizardScene('start',
 	async(ctx: any) => {
 		const chatId = getChatId(ctx);
 		const isUserExist = await User.findById(chatId);
-		if(!isUserExist) await User.create({_id: chatId, weatherStatus: false, city: ''})
+		if(!isUserExist) await User.create({_id: chatId, weatherStatus: false, tasks: []})
 		await ctx.reply(ctx.i18n.t('start.hello', {ctx}))
 		return ctx.scene.leave();
 	}
