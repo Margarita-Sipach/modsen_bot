@@ -8,8 +8,7 @@ export const taskScene = new Scenes.WizardScene('task',
 		const chatId = getChatId(ctx);
 		const userIds = (await User.findById(chatId))!.tasks;
 		const tasks = await TaskModel.find({ '_id': { $in: userIds } });
-		// const tasksInfo = tasks.reduce((acc, {title, body}, index) => `${acc}\n${ctx.i18n.t('task.info', {title: `${index + 1}. ${title}`, body})}`, '');
-
+		
 		const tasksInfo = tasks.reduce((acc, item, index) => {
 			const title = `${index + 1}. ${item.title}`;
 			const body = item.body;
@@ -32,12 +31,10 @@ export const taskScene = new Scenes.WizardScene('task',
 		switch (buttonId) {
 			case 'task-add':
 				ctx.scene.enter('task-add');
+				break;
 			case 'task-update': 
 				ctx.scene.enter('task-update');
-			// 	break;
-			// case 'weather-unfollow':
-			// 	await ctx.weather.unfollow(ctx);
-			// 	break;
+				break;
 		}
 		return ctx.scene.leave();
 	},

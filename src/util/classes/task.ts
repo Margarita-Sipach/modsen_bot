@@ -2,16 +2,19 @@ import { Markup } from "telegraf";
 import { TaskModel } from "../../models/Task"
 import { getChatId } from './../functions/index';
 import { User } from "../../models/User";
+import cron from 'node-cron';
 
 export class Task {
 
 	_title: string;
 	_body: string;
 	_id: any;
+	_time: string
 
 	constructor(){
 		this._title = ''
 		this._body = ''
+		this._time = ''
 	}
 
 	set title(title:  string){
@@ -22,14 +25,27 @@ export class Task {
 		this._body = body
 	}
 
+	set time(time:  string){
+		this._time = time
+	}
+
 	set id(id: any){
 		this._id = id
 	}
 
 	async add(ctx: any){
 		if(this._title && this._body){
+			const title = this._title;
+			const body = this._body;
+			const time = this._time.split(':').reverse().join(' ');
+
 			const userId = getChatId(await ctx)
-			const task = await TaskModel.create({title: this._title, body: this._body, status: false})
+			const cronId = cron.schedule(`${time} * * *`, async() => {
+				console.log('22222222')
+				ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})
+			)});
+
+			const task = await TaskModel.create({title: this._title, body: this._body, time: this._time, cronId, status: false})
 
 			await User.findByIdAndUpdate(
 				userId,
@@ -45,7 +61,7 @@ export class Task {
 		}
 	}
 
-	async update(ctx: any){
+	async cron(){
 
 	}
 
