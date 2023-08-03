@@ -8,4 +8,5 @@ export interface Context extends TelegrafContext {
 	dog: any;
 	place: any;
 	weather: any;
+	task: any;
 }
