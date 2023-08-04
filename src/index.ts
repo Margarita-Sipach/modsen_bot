@@ -5,13 +5,14 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { session } from "telegraf";
 import { Scenes } from 'telegraf';
-import { catScene, dogScene, helpScene, placeScene, startScene, taskAddScene, taskScene, weatherScene } from "./controllers";
+import { helpScene, placeScene, startScene, taskAddScene, taskScene, weatherScene } from "./controllers";
 import { Animal } from "./util/classes/animal";
 import { Place } from "./util/classes/place";
 import { Weather } from "./util/classes/weather";
 import mongoose from "mongoose";
 import { Task } from "./util/classes/task";
 import { taskUpdateScene } from "./controllers/task/update";
+import { animalScene } from "./controllers/animal";
 
 dotenv.config();
 
@@ -36,7 +37,7 @@ mongoose.connection.on('open', () => {
 	const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
 
 	const stage = new Scenes.Stage();
-	stage.register(startScene, helpScene, catScene, dogScene, placeScene, weatherScene, taskScene, taskAddScene, taskUpdateScene);
+	stage.register(startScene, helpScene, placeScene, weatherScene, taskScene, taskAddScene, taskUpdateScene, animalScene);
 
 	bot.use(session());
 	bot.use(i18n.middleware());
@@ -44,21 +45,21 @@ mongoose.connection.on('open', () => {
 
 	bot.context.cat = new Animal('cat');
 	bot.context.dog = new Animal('dog');
-	bot.context.place = new Place();
-	bot.context.weather = new Weather();
-	bot.context.task = new Task();
+	// bot.context.place = new Place();
+	// bot.context.weather = new Weather();
+	// bot.context.task = new Task();
 	
 	bot.start((ctx: Context) => ctx.scene.enter('start'));
 	bot.help((ctx: Context) => ctx.scene.enter('help'));
 	
-	bot.command('cat', (ctx: Context) => ctx.scene.enter('cat'));
-	bot.command('dog', (ctx: Context) => ctx.scene.enter('dog'));
-	bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
-	bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
-	bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
+	bot.command('cat', (ctx: Context) => ctx.scene.enter('animal'));
+	bot.command('dog', (ctx: Context) => ctx.scene.enter('animal'));
+	// bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
+	// bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
+	// bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
 
-	bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
-	bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
+	// bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
+	// bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
 
 
 	bot.launch();

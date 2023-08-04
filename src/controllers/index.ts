@@ -1,9 +1,9 @@
 import { startScene } from './start';
 import { helpScene } from './help';
-import { catScene, dogScene } from './animal';
 import { placeScene } from './place/index';
 import { weatherScene } from './weather';
 import { taskScene } from './task/index';
 import { taskAddScene } from './task/add';
+import { animalScene } from './animal/index';
 
-export {startScene, helpScene, catScene, dogScene, placeScene, weatherScene, taskScene, taskAddScene}
+export {startScene, helpScene, animalScene, placeScene, weatherScene, taskScene, taskAddScene}
