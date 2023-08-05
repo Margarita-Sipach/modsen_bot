@@ -11,5 +11,5 @@ export abstract class Compilation<T> extends Parent{
 
 	protected abstract getAllElements(param?: string):void
 
-	abstract getNewElement(param?: string):Promise<T>
+	abstract getNewElement(param?: string):Promise<T | Error>
 }

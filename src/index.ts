@@ -7,7 +7,6 @@ import { session } from "telegraf";
 import { Scenes } from 'telegraf';
 import { helpScene, placeScene, startScene, taskAddScene, taskScene, weatherScene } from "./controllers";
 import { Animal } from "./util/classes/animal";
-import { Place } from "./util/classes/place";
 import { Weather } from "./util/classes/weather";
 import mongoose from "mongoose";
 import { Task } from "./util/classes/task";
@@ -41,11 +40,10 @@ mongoose.connection.on('open', () => {
 
 	bot.use(session());
 	bot.use(i18n.middleware());
-	bot.use(stage.middleware() as any);
+	bot.use(stage.middleware());
 
 	bot.context.cat = new Animal('cat');
 	bot.context.dog = new Animal('dog');
-	// bot.context.place = new Place();
 	// bot.context.weather = new Weather();
 	// bot.context.task = new Task();
 	
@@ -54,13 +52,12 @@ mongoose.connection.on('open', () => {
 	
 	bot.command('cat', (ctx: Context) => ctx.scene.enter('animal'));
 	bot.command('dog', (ctx: Context) => ctx.scene.enter('animal'));
-	// bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
+	bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
 	// bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
 	// bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
 
 	// bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
 	// bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
-
 
 	bot.launch();
 })

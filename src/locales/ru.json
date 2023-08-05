@@ -9,7 +9,14 @@
 	"place": {
 		"city": "Какой город интересует?",
 		"more": "Подробнее",
-		"info": "<b>${title}</b>\n${text}"
+		"info": "<b>${title}</b>\n${text}",
+		"type": "Какое место интересует?",
+		"btn": {
+			"natural": "Природа",
+			"historic": "История",
+			"cultural": "Культура",
+			"architecture": "Архитектура"	
+		}
 	},
 	"weather": {
 		"info": "<b>г. ${city}</b>\nОписание:  ${desc}\nТемпература:  ${temp} °C\nСкорость ветра:  ${speed} км/ч\n",
