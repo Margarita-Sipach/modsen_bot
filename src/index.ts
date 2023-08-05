@@ -35,6 +35,13 @@ mongoose.connection.on('open', () => {
 
 	const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
 
+	const commands = i18n.t('ru', 'commands').split('\n').map((item: string) => {
+		const [command, description] = item.split(' - ');
+		return {command, description};
+	});
+
+	bot.telegram.setMyCommands(commands)
+
 	const stage = new Scenes.Stage();
 	stage.register(startScene, helpScene, placeScene, weatherScene, taskScene, taskAddScene, taskUpdateScene, animalScene);
 
