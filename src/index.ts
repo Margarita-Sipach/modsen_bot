@@ -12,7 +12,6 @@ import mongoose from "mongoose";
 import { Task } from "./util/classes/task";
 import { taskUpdateScene } from "./controllers/task/update";
 import { animalScene } from "./controllers/animal";
-import { exitScene } from "./controllers/exit";
 
 dotenv.config();
 
@@ -56,8 +55,7 @@ mongoose.connection.on('open', () => {
 		taskScene, 
 		taskAddScene, 
 		taskUpdateScene, 
-		animalScene, 
-		exitScene
+		animalScene
 	);
 
 	bot.use(session());
@@ -66,7 +64,6 @@ mongoose.connection.on('open', () => {
 
 	bot.context.cat = new Animal('cat');
 	bot.context.dog = new Animal('dog');
-	// bot.context.session.weather = new Weather();
 	// bot.context.task = new Task();
 	
 	bot.start((ctx: Context) => ctx.scene.enter('start'));
@@ -80,6 +77,11 @@ mongoose.connection.on('open', () => {
 
 	// bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
 	// bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
+
+	stage.command('exit', (ctx: any) => {
+		ctx.reply(ctx.i18n.t('exit'));
+		return ctx.scene.leave();
+	});
 
 	bot.launch();
 })
