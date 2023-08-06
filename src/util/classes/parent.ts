@@ -7,10 +7,10 @@ export abstract class Parent{
 		protected readonly key: string
 	){}
 
-	protected async getData<T>(url: string, query: (string | number)[][] = [], auth: string = ''): Promise<T | Error>{
+	protected async getData<T>(query: (string | number)[][] = [], url: string = this.url): Promise<T | Error>{
 		try{
 			const fullQuery = '?' + query.reduce((acc, item) => [...acc, `${item[0]}=${item[1]}`], []).join('&');
-			const props = auth ? {headers: { Accept: 'application/json', Authorization: auth },} : {};
+			const props = this.key ? {headers: { Accept: 'application/json', Authorization: this.key },} : {};
 			const res = await axios.get(`${url}${fullQuery}`, props);
 			return await res.data;
 		}catch{

@@ -1,37 +1,59 @@
 import { User } from "../../models/User";
 import { Parent } from "./parent";
-import { getChatId } from "../functions";
+import { createButton, getChatId } from "../functions";
 import { Markup } from "telegraf";
 import cron from 'node-cron';
 
+interface APIWeatherType{
+  weather: [{ 
+		description: string
+	}],
+  base: string,
+  main: {
+    temp: number,
+  },
+  wind: { 
+		speed: number 
+	},
+}
+
 export class Weather extends Parent {
 
-	_city: string;
-	cronId: any;
+	cronId: any = '';
+	city: string = ''
 
 	constructor(){
 		super('https://api.openweathermap.org/data/2.5/weather', process.env.WEATHER_KEY as string);
-		this._city = '';
-		this.cronId = '';
-	}
-
-	set city(city: string) {
-		this._city = city;
 	}
 
 	async displayWeatherInfo(ctx: any) {
 		const weatherInfo = await this.getCityWeather();
 	
 		await ctx.replyWithHTML(
-			ctx.i18n.t('weather.info', {...weatherInfo, city: this._city}), 
-			Markup.inlineKeyboard([Markup.button.callback(ctx.i18n.t('weather.newCity'), 'weather-city')])
+			ctx.i18n.t('weather.info', {...weatherInfo, city: this.city}), 
+			Markup.inlineKeyboard([createButton(ctx, 'newCity', 'weather')])
 		);
 	}
 
 	async getCityWeather(){
-		const json = await this.getData(this.url, [['q', this._city], ['appid', this.key], ['lang', 'ru']]);
-		const [firstLetter, ...rest] = json.weather[0].description
-		return {desc: `${firstLetter.toUpperCase()}${rest}`, temp: json.main.temp, speed: json.wind.speed}
+		const weatherInfo: APIWeatherType | Error = await this.getData(
+			[
+				['q', this.city], 
+				['appid', this.key], 
+				['lang', 'ru'], 
+				['units', 'metric']
+			]
+		);
+		
+		if(weatherInfo instanceof Error) return weatherInfo;
+		
+		const [firstLetter, ...rest] = weatherInfo.weather[0].description
+
+		return {
+			desc: `${firstLetter.toUpperCase()}${rest.join('')}`, 
+			temp: weatherInfo.main.temp, 
+			speed: weatherInfo.wind.speed
+		}
 	}
 
 	async follow(ctx: any){
@@ -39,15 +61,18 @@ export class Weather extends Parent {
 
 		await User.findOneAndUpdate(
 			{_id: getChatId(ctx), weatherStatus: false}, 
-			{weatherStatus: true, city: this._city, time}
+			{weatherStatus: true, city: this.city, time}
 		);
 		await ctx.reply(ctx.i18n.t('weather.followSuccess'))
 
-		this.cronId = cron.schedule(`${time} * * *`, async() => ctx.weather.displayWeatherInfo(ctx));
+		this.cronId = cron.schedule(`${time} * * *`, async() => this.displayWeatherInfo(ctx));
 	}
 
 	async unfollow (ctx: any) {
-		await User.findOneAndUpdate({_id: getChatId(ctx), weatherStatus: true}, {weatherStatus: false});
+		await User.findOneAndUpdate(
+			{_id: getChatId(ctx), weatherStatus: true}, 
+			{weatherStatus: false}
+		);
 		await this.cronId.stop()
 		await ctx.editMessageText(ctx.i18n.t('weather.unfollowSuccess'))
 	}

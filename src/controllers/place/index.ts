@@ -1,5 +1,7 @@
 import { Markup, Scenes } from 'telegraf'
 import { Place } from '../../util/classes/place';
+import { createButton } from '../../util/functions';
+import { checkCity } from './middleware';
 
 export const placeScene = new Scenes.WizardScene('place', 
 	(ctx: any) => {
@@ -8,20 +10,19 @@ export const placeScene = new Scenes.WizardScene('place',
 		return ctx.wizard.next();
 	},
 	async(ctx: any) => {
-
 		const city = await ctx.message.text;
 		await ctx.session.place.setCoordinates(city)
 
 		await ctx.replyWithHTML(ctx.i18n.t('place.type'), Markup.inlineKeyboard([
 			[
-				Markup.button.callback(ctx.i18n.t('place.btn.natural'), 'btn-natural'),
-				Markup.button.callback(ctx.i18n.t('place.btn.historic'), 'btn-historic'),
+				createButton(ctx, 'natural', 'place'),
+				createButton(ctx, 'historic', 'place')
 			],
 			[
-				Markup.button.callback(ctx.i18n.t('place.btn.cultural'), 'btn-cultural'),
-				Markup.button.callback(ctx.i18n.t('place.btn.architecture'), 'btn-architecture')]
+				createButton(ctx, 'cultural', 'place'),
+				createButton(ctx, 'architecture', 'place')
 			]
-		));
+		]));
 		return ctx.wizard.next();
 	},
 	async(ctx: any) => {

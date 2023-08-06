@@ -41,11 +41,11 @@ export class Place extends Compilation<PlaceType | string>{
 
 	async setCoordinates(city: string){
 		const coordinates: APICoordinatesType | Error = await this.getData(
-			`${this.url}geoname`, 
 			[
 				['apikey', this.key], 
 				['name', city]
-			]
+			],
+			`${this.url}geoname`
 		);
 
 		if(coordinates instanceof Error) return coordinates;
@@ -59,14 +59,15 @@ export class Place extends Compilation<PlaceType | string>{
 			this.placeKind = placeKind
 
 			const places: APIPlaceIdsType | Error = await this.getData(
-				`${this.url}bbox`, 
 				[
 					['apikey', this.key], 
 					['kinds', this.placeKind], 
 					['lon_min', lon - 1], 
 					['lat_min', lat - 1], 
 					['lon_max', lon + 1], 
-					['lat_max', lat + 1]]
+					['lat_max', lat + 1]
+				],
+				`${this.url}bbox`, 
 			);
 
 			if(places instanceof Error) return places;
@@ -80,7 +81,7 @@ export class Place extends Compilation<PlaceType | string>{
 
 	async getNewElement(){
 		const index = this.getRandomPositiveInteger(this.allElements.length)
-		const place: APIPlaceType | Error = await this.getData(`${this.url}xid/${this.allElements[index]}`, [['apikey', this.key]]);
+		const place: APIPlaceType | Error = await this.getData([['apikey', this.key]], `${this.url}xid/${this.allElements[index]}`);
 
 		if(place instanceof Error) return place;
 		if(place.error) return new Error('Bad place');

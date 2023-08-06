@@ -1,4 +1,4 @@
-import { Telegraf } from "telegraf";
+import { Markup, Telegraf } from "telegraf";
 import TelegrafI18n from 'telegraf-i18n';
 import { Context } from "./types";
 import dotenv from 'dotenv';
@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import { Task } from "./util/classes/task";
 import { taskUpdateScene } from "./controllers/task/update";
 import { animalScene } from "./controllers/animal";
+import { exitScene } from "./controllers/exit";
 
 dotenv.config();
 
@@ -34,6 +35,10 @@ startDb()
 mongoose.connection.on('open', () => {
 
 	const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
+	bot.catch((err, ctx) => {
+		console.log(err);
+		ctx.reply('Упс очень странная ошибка, я ее не знаю...')
+	});
 
 	const commands = i18n.t('ru', 'commands').split('\n').map((item: string) => {
 		const [command, description] = item.split(' - ');
@@ -43,7 +48,17 @@ mongoose.connection.on('open', () => {
 	bot.telegram.setMyCommands(commands)
 
 	const stage = new Scenes.Stage();
-	stage.register(startScene, helpScene, placeScene, weatherScene, taskScene, taskAddScene, taskUpdateScene, animalScene);
+	stage.register(
+		startScene, 
+		helpScene, 
+		placeScene, 
+		weatherScene, 
+		taskScene, 
+		taskAddScene, 
+		taskUpdateScene, 
+		animalScene, 
+		exitScene
+	);
 
 	bot.use(session());
 	bot.use(i18n.middleware());
@@ -51,7 +66,7 @@ mongoose.connection.on('open', () => {
 
 	bot.context.cat = new Animal('cat');
 	bot.context.dog = new Animal('dog');
-	// bot.context.weather = new Weather();
+	// bot.context.session.weather = new Weather();
 	// bot.context.task = new Task();
 	
 	bot.start((ctx: Context) => ctx.scene.enter('start'));
@@ -60,7 +75,7 @@ mongoose.connection.on('open', () => {
 	bot.command('cat', (ctx: Context) => ctx.scene.enter('animal'));
 	bot.command('dog', (ctx: Context) => ctx.scene.enter('animal'));
 	bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
-	// bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
+	bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
 	// bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
 
 	// bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
