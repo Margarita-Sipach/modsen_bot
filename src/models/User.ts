@@ -9,4 +9,4 @@ const UserShema = new mongoose.Schema({
 	tasks: [{type: mongoose.Schema.Types.ObjectId, ref: "Task"}]
 })
 
-export const User = mongoose.model('User', UserShema);
+export const UserModel = mongoose.model('User', UserShema);

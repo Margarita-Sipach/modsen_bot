@@ -1,12 +1,12 @@
 import { Markup, Scenes } from 'telegraf'
-import { User } from '../../models/User';
+import { UserModel } from '../../models/User';
 import { getChatId } from '../../util/functions';
 import { TaskModel } from './../../models/Task';
 
 export const taskScene = new Scenes.WizardScene('task', 
 	async(ctx: any) => {
 		const chatId = getChatId(ctx);
-		const userIds = (await User.findById(chatId))!.tasks;
+		const userIds = (await UserModel.findById(chatId))!.tasks;
 		const tasks = await TaskModel.find({ '_id': { $in: userIds } });
 		
 		const tasksInfo = tasks.reduce((acc, item, index) => {

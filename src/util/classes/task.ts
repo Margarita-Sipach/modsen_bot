@@ -1,7 +1,7 @@
 import { Markup } from "telegraf";
 import { TaskModel } from "../../models/Task"
 import { getChatId } from './../functions/index';
-import { User } from "../../models/User";
+import { UserModel } from "../../models/User";
 import cron from 'node-cron';
 
 export class Task {
@@ -41,13 +41,12 @@ export class Task {
 
 			const userId = getChatId(await ctx)
 			const cronId = cron.schedule(`${time} * * *`, async() => {
-				console.log('22222222')
 				ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})
 			)});
 
 			const task = await TaskModel.create({title: this._title, body: this._body, time: this._time, cronId, status: false})
 
-			await User.findByIdAndUpdate(
+			await UserModel.findByIdAndUpdate(
 				userId,
 				{ $push: { tasks: task._id } },
 				{ new: true, useFindAndModify: false }
@@ -67,7 +66,7 @@ export class Task {
 
 	async delete(userId: number){
 		await TaskModel.findByIdAndDelete(this._id);
-		await User.findByIdAndUpdate(
+		await UserModel.findByIdAndUpdate(
 			userId,
 			{ $pull: { tasks: this._id } }
 		);
@@ -78,7 +77,7 @@ export class Task {
 	}
 
 	async getTasks(userId: number){
-		const taskIds = (await User.findById(userId))!.tasks;
+		const taskIds = (await UserModel.findById(userId))!.tasks;
 		const tasks = await TaskModel.find({ '_id': { $in: taskIds } });
 		return tasks
 	}

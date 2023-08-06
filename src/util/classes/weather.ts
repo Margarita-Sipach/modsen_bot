@@ -1,4 +1,4 @@
-import { User } from "../../models/User";
+import { UserModel } from "../../models/User";
 import { Parent } from "./parent";
 import { createButton, getChatId } from "../functions";
 import { Markup } from "telegraf";
@@ -59,7 +59,7 @@ export class Weather extends Parent {
 	async follow(ctx: any){
 		const time = ctx.message.text.split(':').reverse().join(' ');
 
-		await User.findOneAndUpdate(
+		await UserModel.findOneAndUpdate(
 			{_id: getChatId(ctx), weatherStatus: false}, 
 			{weatherStatus: true, city: this.city, time}
 		);
@@ -69,7 +69,7 @@ export class Weather extends Parent {
 	}
 
 	async unfollow (ctx: any) {
-		await User.findOneAndUpdate(
+		await UserModel.findOneAndUpdate(
 			{_id: getChatId(ctx), weatherStatus: true}, 
 			{weatherStatus: false}
 		);

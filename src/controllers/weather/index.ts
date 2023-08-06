@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf'
-import { User } from '../../models/User';
+import { UserModel } from '../../models/User';
 import { createButton, getChatId } from '../../util/functions';
 import { Weather } from '../../util/classes/weather';
 
@@ -15,7 +15,7 @@ export const weatherScene = new Scenes.WizardScene('weather',
 		ctx.session.weather.city = inputCity;
 		await ctx.session.weather.displayWeatherInfo(ctx);
 
-		const user = await User.findById(getChatId(ctx));
+		const user = await UserModel.findById(getChatId(ctx));
 		const noteButton = user!.weatherStatus
 		? createButton(ctx, 'unfollow', 'weather', {city: user!.city}) 
 		: createButton(ctx, 'follow', 'weather', {city: inputCity}) 
