@@ -1,7 +1,7 @@
 import { Markup, Scenes } from 'telegraf'
 import { Place } from '../../util/classes/place';
-import { createButton } from '../../util/functions';
-import { checkCity } from './middleware';
+import { back, createButton, sendError } from '../../util/functions';
+import { checkCity } from '../../util/functions/check';
 
 export const placeScene = new Scenes.WizardScene('place', 
 	(ctx: any) => {
@@ -10,9 +10,15 @@ export const placeScene = new Scenes.WizardScene('place',
 		return ctx.wizard.next();
 	},
 	async(ctx: any) => {
-		const city = await ctx.message.text;
-		await ctx.session.place.setCoordinates(city)
+		if(await checkCity(ctx)) return sendError(ctx, 'city')
 
+		const city = await ctx.message.text;
+		const coordinates = await ctx.session.place.setCoordinates(city);
+
+		if((await coordinates) instanceof Error) return sendError(ctx, 'city')
+		return ctx.wizard.steps[++ctx.wizard.cursor](ctx)
+	},
+	async(ctx: any) => {
 		await ctx.replyWithHTML(ctx.i18n.t('place.type'), Markup.inlineKeyboard([
 			[
 				createButton(ctx, 'natural', 'place'),
@@ -26,10 +32,15 @@ export const placeScene = new Scenes.WizardScene('place',
 		return ctx.wizard.next();
 	},
 	async(ctx: any) => {
-		const buttonId = await ctx.callbackQuery?.data;
 
-		await ctx.session.place.getAllElements(buttonId.replace('btn-', ''))
-		const {title, text, link, img} = await ctx.session.place.getNewElement();
+		const buttonId = await ctx.callbackQuery?.data;
+		if(!buttonId) return sendError(ctx, 'placeType')
+		if(await ctx.session.place.getAllElements(buttonId.replace('btn-', ''))) return sendError(ctx, 'badRequest')
+		
+		const place = await ctx.session.place.getNewElement();
+		if(await place instanceof Error) return sendError(ctx, 'place')
+
+		const {title, text, link, img} = place;
 
 		img && (await ctx.replyWithPhoto({ url: img }));
 		await ctx.replyWithHTML(ctx.i18n.t('place.info', {title, text}), Markup.inlineKeyboard([
