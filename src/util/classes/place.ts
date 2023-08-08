@@ -40,16 +40,13 @@ export class Place extends Compilation<PlaceType | string>{
 	}
 
 	async setCoordinates(city: string){
-		const coordinates: APICoordinatesType | Error = await this.getData(
+		const coordinates: APICoordinatesType = await this.getData(
 			[
 				['apikey', this.key], 
 				['name', city]
 			],
 			`${this.url}geoname`
 		);
-
-		if(coordinates instanceof Error) return coordinates;
-		if(coordinates.error) return new Error('Bad city');
 
 		this.coordinates = coordinates; 
 	}
@@ -58,7 +55,7 @@ export class Place extends Compilation<PlaceType | string>{
 			const {lon, lat} = this.coordinates;
 			this.placeKind = placeKind
 
-			const places: APIPlaceIdsType | Error = await this.getData(
+			const places: APIPlaceIdsType = await this.getData(
 				[
 					['apikey', this.key], 
 					['kinds', this.placeKind], 
@@ -70,8 +67,6 @@ export class Place extends Compilation<PlaceType | string>{
 				`${this.url}bbox`, 
 			);
 
-			if(places instanceof Error) return places;
-			if(places.error) return new Error('Bad type');
 			const placeIds = places.features
 				.filter(({properties}) => properties.wikidata)
 				.map(({properties}) => properties.xid);
@@ -81,10 +76,7 @@ export class Place extends Compilation<PlaceType | string>{
 
 	async getNewElement(){
 		const index = this.getRandomPositiveInteger(this.allElements.length)
-		const place: APIPlaceType | Error = await this.getData([['apikey', this.key]], `${this.url}xid/${this.allElements[index]}`);
-
-		if(place instanceof Error) return place;
-		if(place.error) return new Error('Bad place');
+		const place: APIPlaceType = await this.getData([['apikey', this.key]], `${this.url}xid/${this.allElements[index]}`);
 
 		return {
 			title: place.name, 

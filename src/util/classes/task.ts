@@ -3,48 +3,25 @@ import { TaskModel } from "../../models/Task"
 import { getChatId } from './../functions/index';
 import { UserModel } from "../../models/User";
 import cron from 'node-cron';
+import { Cron } from "./cron";
 
 export class Task {
 
-	_title: string;
-	_body: string;
-	_id: any;
-	_time: string
+	title: string = '';
+	body: string = '';
+	id: string = '';
+	time: string = '';
+	cron: {[hey: string]: Cron} = {};
 
-	constructor(){
-		this._title = ''
-		this._body = ''
-		this._time = ''
-	}
-
-	set title(title:  string){
-		this._title = title
-	}
-
-	set body(body:  string){
-		this._body = body
-	}
-
-	set time(time:  string){
-		this._time = time
-	}
-
-	set id(id: any){
-		this._id = id
-	}
 
 	async add(ctx: any){
-		if(this._title && this._body){
-			const title = this._title;
-			const body = this._body;
-			const time = this._time.split(':').reverse().join(' ');
+		if(this.title && this.body){
+			const title = this.title;
+			const body = this.body;
+			const time = this.time.split(':').reverse().join(' ');
 
 			const userId = getChatId(await ctx)
-			const cronId = cron.schedule(`${time} * * *`, async() => {
-				ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})
-			)});
-
-			const task = await TaskModel.create({title: this._title, body: this._body, time: this._time, cronId, status: false})
+			const task = await TaskModel.create({title, body, time, status: false})
 
 			await UserModel.findByIdAndUpdate(
 				userId,
@@ -52,28 +29,39 @@ export class Task {
 				{ new: true, useFindAndModify: false }
 			);
 
-			await ctx.replyWithHTML(ctx.i18n.t('task.info', {title: this._title, body: this._body}))
+			await ctx.replyWithHTML(ctx.i18n.t('task.info', {title: this.title, body: this.body}))
 			await ctx.reply(ctx.i18n.t('task.add-success'));
 
-			this._title = '';
-			this._body = '';
+			const taskId = task._id.toString()
+			this.cron[taskId] = new Cron();
+			this.cron[taskId].start(time, () => ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})));
+
+			this.title = '';
+			this.body = '';
 		}
 	}
 
-	async cron(){
-
-	}
-
 	async delete(userId: number){
-		await TaskModel.findByIdAndDelete(this._id);
+		await TaskModel.findByIdAndDelete(this.id);
 		await UserModel.findByIdAndUpdate(
 			userId,
-			{ $pull: { tasks: this._id } }
+			{ $pull: { tasks: this.id } }
 		);
+
+		this.stopCron()
 	}
 
-	async complete(ctx: any){
-		await TaskModel.findByIdAndUpdate(this._id, {status: true});
+	async complete(){
+		await TaskModel.findByIdAndUpdate(
+			this.id, 
+			{status: true}
+		);
+		this.stopCron()
+	}
+
+	async stopCron(){
+		this.cron?.[this.id.toString()]?.stop()
+		this.id = ''
 	}
 
 	async getTasks(userId: number){

@@ -3,6 +3,7 @@ import { Parent } from "./parent";
 import { createButton, getChatId } from "../functions";
 import { Markup } from "telegraf";
 import cron from 'node-cron';
+import { Cron } from "./cron";
 
 interface APIWeatherType{
   weather: [{ 
@@ -19,8 +20,8 @@ interface APIWeatherType{
 
 export class Weather extends Parent {
 
-	cronId: any = '';
 	city: string = ''
+	cron: Cron | null = null;
 
 	constructor(){
 		super('https://api.openweathermap.org/data/2.5/weather', process.env.WEATHER_KEY as string);
@@ -36,7 +37,7 @@ export class Weather extends Parent {
 	}
 
 	async getCityWeather(){
-		const weatherInfo: APIWeatherType | Error = await this.getData(
+		const weatherInfo: APIWeatherType = await this.getData(
 			[
 				['q', this.city], 
 				['appid', this.key], 
@@ -44,9 +45,7 @@ export class Weather extends Parent {
 				['units', 'metric']
 			]
 		);
-		
-		if(weatherInfo instanceof Error) return weatherInfo;
-		
+
 		const [firstLetter, ...rest] = weatherInfo.weather[0].description
 
 		return {
@@ -65,7 +64,8 @@ export class Weather extends Parent {
 		);
 		await ctx.reply(ctx.i18n.t('weather.followSuccess'))
 
-		this.cronId = cron.schedule(`${time} * * *`, async() => this.displayWeatherInfo(ctx));
+		this.cron = new Cron();
+		this.cron.start(time, () => this.displayWeatherInfo(ctx));
 	}
 
 	async unfollow (ctx: any) {
@@ -73,7 +73,7 @@ export class Weather extends Parent {
 			{_id: getChatId(ctx), weatherStatus: true}, 
 			{weatherStatus: false}
 		);
-		await this.cronId.stop()
+		this.cron?.stop()
 		await ctx.editMessageText(ctx.i18n.t('weather.unfollowSuccess'))
 	}
 }

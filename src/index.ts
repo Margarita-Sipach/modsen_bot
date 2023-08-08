@@ -5,13 +5,16 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { session } from "telegraf";
 import { Scenes } from 'telegraf';
-import { helpScene, placeScene, startScene, taskAddScene, taskScene, weatherScene } from "./controllers";
+import { helpScene, placeScene, startScene, taskAddScene, taskScene, weatherFollowScene, weatherScene } from "./controllers";
 import { Animal } from "./util/classes/animal";
 import { Weather } from "./util/classes/weather";
 import mongoose from "mongoose";
 import { Task } from "./util/classes/task";
 import { taskUpdateScene } from "./controllers/task/update";
 import { animalScene } from "./controllers/animal";
+import { sendError } from "./util/functions";
+import { ValidationError } from "./util/classes/err/validation";
+import axios, { AxiosError } from "axios";
 
 dotenv.config();
 
@@ -35,8 +38,12 @@ mongoose.connection.on('open', () => {
 
 	const bot: Telegraf<Context> = new Telegraf(process.env.BOT_TOKEN as string);
 	bot.catch((err, ctx) => {
-		console.log(err);
-		ctx.reply('Упс очень странная ошибка, я ее не знаю...')
+		if((err as AxiosError).response?.status) {
+			console.log((err as AxiosError).response?.status);
+			return sendError(ctx, 'Неправильно введены данные')
+		}
+		if(err instanceof ValidationError) return err.sendError(ctx)
+		return ctx.reply('Упс очень странная ошибка, я ее не знаю...');
 	});
 
 	const commands = i18n.t('ru', 'commands').split('\n').map((item: string) => {
@@ -55,7 +62,8 @@ mongoose.connection.on('open', () => {
 		taskScene, 
 		taskAddScene, 
 		taskUpdateScene, 
-		animalScene
+		animalScene,
+		weatherFollowScene
 	);
 
 	bot.use(session());
@@ -64,19 +72,20 @@ mongoose.connection.on('open', () => {
 
 	bot.context.cat = new Animal('cat');
 	bot.context.dog = new Animal('dog');
-	// bot.context.task = new Task();
-	
+
 	bot.start((ctx: Context) => ctx.scene.enter('start'));
 	bot.help((ctx: Context) => ctx.scene.enter('help'));
-	
+
 	bot.command('cat', (ctx: Context) => ctx.scene.enter('animal'));
 	bot.command('dog', (ctx: Context) => ctx.scene.enter('animal'));
 	bot.command('place', (ctx: Context) => ctx.scene.enter('place'));
 	bot.command('weather', (ctx: Context) => ctx.scene.enter('weather'));
-	// bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
+	bot.command('task', (ctx: Context) => ctx.scene.enter('task'));
 
-	// bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
-	// bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
+	bot.command('weather-follow', (ctx: Context) => ctx.scene.enter('weather-follow'));
+
+	bot.command('task-add', (ctx: Context) => ctx.scene.enter('task-add'));
+	bot.command('task-update', (ctx: Context) => ctx.scene.enter('task-update'));
 
 	stage.command('exit', (ctx: any) => {
 		ctx.reply(ctx.i18n.t('exit'));

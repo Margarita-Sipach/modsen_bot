@@ -8,8 +8,7 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 	},
 	async(ctx: any) => {
 		const id = getChatId(ctx);
-		const task = (await ctx.task.getTasks(id))[ctx.message.text - 1];
-		console.log(task)
+		const task = (await ctx.session.task.getTasks(id))[ctx.message.text - 1];
 
 		await ctx.replyWithHTML(ctx.i18n.t('task.info', {title: task.title, body: task.body}), 
 			Markup.inlineKeyboard([
@@ -20,7 +19,7 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 				[Markup.button.callback(ctx.i18n.t('task.back'), 'task-back')]
 			])
 		);
-		ctx.task.id = task._id;
+		ctx.session.task.id = task._id;
 		return ctx.wizard.next();
 	},
 	async(ctx: any) => {
@@ -29,11 +28,11 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 
 		switch (buttonId) {
 			case 'task-delete':
-				await ctx.task.delete(userId);
+				await ctx.session.task.delete(userId);
 				await ctx.reply(ctx.i18n.t('task.delete-success'));
 				break;			
 			case 'task-complete':
-				await ctx.task.complete(userId);
+				await ctx.session.task.complete(userId);
 				await ctx.reply(ctx.i18n.t('task.complete-success'));
 				break;		
 		}

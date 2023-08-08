@@ -6,7 +6,7 @@ export const createButton = (ctx: any, id: string, scene: string, params?: objec
 
 export const back = (ctx: any) => ctx.wizard.steps[--ctx.wizard.cursor](ctx)
 
-export const sendError = async(ctx: any, errorName: string) => {
-	await ctx.reply(ctx.i18n.t(`error.${errorName}`))
+export const sendError = async(ctx: any, message: string) => {
+	await ctx.reply(message);
 	return back(ctx)
 }
