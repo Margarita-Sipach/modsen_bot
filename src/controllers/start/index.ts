@@ -1,9 +1,10 @@
 import { Scenes } from 'telegraf'
 import { UserModel } from '../../models/User';
 import { getChatId } from '../../util/functions';
+import { TelegrafContext } from '../../types';
 
 export const startScene = new Scenes.WizardScene('start', 
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		const chatId = getChatId(ctx);
 		const isUserExist = await UserModel.findById(chatId);
 		if(!isUserExist) await UserModel.create({_id: chatId, weatherStatus: false, tasks: []})

@@ -1,14 +1,15 @@
 import { Markup, Scenes } from 'telegraf'
 import { getChatId } from '../../util/functions';
+import { TelegrafContext } from '../../types';
 
 export const taskUpdateScene = new Scenes.WizardScene('task-update', 
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		await ctx.reply(ctx.i18n.t('task.update-number'));
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		const id = getChatId(ctx);
-		const task = (await ctx.session.task.getTasks(id))[ctx.message.text - 1];
+		const task = (await ctx.session.task.getTasks(id))[+ctx.message.text - 1];
 
 		await ctx.replyWithHTML(ctx.i18n.t('task.info', {title: task.title, body: task.body}), 
 			Markup.inlineKeyboard([
@@ -19,10 +20,10 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 				[Markup.button.callback(ctx.i18n.t('task.back'), 'task-back')]
 			])
 		);
-		ctx.session.task.id = task._id;
+		ctx.session.task.id = task._id.toString();
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		const buttonId = await ctx.callbackQuery?.data;
 		const userId = getChatId(ctx)
 
@@ -32,7 +33,7 @@ export const taskUpdateScene = new Scenes.WizardScene('task-update',
 				await ctx.reply(ctx.i18n.t('task.delete-success'));
 				break;			
 			case 'task-complete':
-				await ctx.session.task.complete(userId);
+				await ctx.session.task.complete();
 				await ctx.reply(ctx.i18n.t('task.complete-success'));
 				break;		
 		}

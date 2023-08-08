@@ -1,4 +1,3 @@
-import { type } from "os";
 import { Compilation } from "./compilation";
 import { AnimalType } from "../../types/class";
 

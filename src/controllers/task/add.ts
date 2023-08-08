@@ -1,27 +1,26 @@
-import { Markup, Scenes } from 'telegraf'
-import { Task } from '../../util/classes/task';
+import { Scenes } from 'telegraf'
 import { checkTime } from '../../util/functions/check';
-import { sendError } from '../../util/functions';
 import { ValidationError } from '../../util/classes/err/validation';
+import { TelegrafContext } from '../../types';
 
 export const taskAddScene = new Scenes.WizardScene('task-add', 
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		await ctx.reply(ctx.i18n.t('task.add-title'));
 		console.log(ctx.session)
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
-		ctx.session.task.title = await ctx.message.text;
+	async(ctx: TelegrafContext) => {
+		ctx.session.task.title = ctx.message.text;
 		await ctx.reply(ctx.i18n.t('task.add-body'));
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
-		ctx.session.task.body = await ctx.message.text;
+	async(ctx: TelegrafContext) => {
+		ctx.session.task.body = ctx.message.text;
 		await ctx.reply(ctx.i18n.t('task.add-time'));
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
-		const time = await ctx.message.text;
+	async(ctx: TelegrafContext) => {
+		const time = ctx.message.text;
 		if(checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'))
 		ctx.session.task.time = time;
 		await ctx.session.task.add(ctx);

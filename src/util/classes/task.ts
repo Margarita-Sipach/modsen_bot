@@ -4,6 +4,7 @@ import { getChatId } from './../functions/index';
 import { UserModel } from "../../models/User";
 import cron from 'node-cron';
 import { Cron } from "./cron";
+import { TelegrafContext } from "../../types";
 
 export class Task {
 
@@ -13,8 +14,7 @@ export class Task {
 	time: string = '';
 	cron: {[hey: string]: Cron} = {};
 
-
-	async add(ctx: any){
+	async add(ctx: TelegrafContext){
 		if(this.title && this.body){
 			const title = this.title;
 			const body = this.body;
@@ -33,8 +33,7 @@ export class Task {
 			await ctx.reply(ctx.i18n.t('task.add-success'));
 
 			const taskId = task._id.toString()
-			this.cron[taskId] = new Cron();
-			this.cron[taskId].start(time, () => ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})));
+			this.cron[taskId] = new Cron(time, () => ctx.replyWithHTML(ctx.i18n.t('task.info', {title, body})));
 
 			this.title = '';
 			this.body = '';

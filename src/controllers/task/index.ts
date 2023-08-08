@@ -3,9 +3,11 @@ import { UserModel } from '../../models/User';
 import { getChatId } from '../../util/functions';
 import { TaskModel } from './../../models/Task';
 import { Task } from '../../util/classes/task';
+import { TelegrafContext } from '../../types';
+import { CallbackQuery } from 'telegraf/typings/core/types/typegram';
 
 export const taskScene = new Scenes.WizardScene('task', 
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		ctx.session.task = new Task();
 
 		const chatId = getChatId(ctx);
@@ -27,7 +29,7 @@ export const taskScene = new Scenes.WizardScene('task',
 		);
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		const buttonId = await ctx.callbackQuery?.data;
 
 		switch (buttonId) {

@@ -4,6 +4,7 @@ import { createButton, getChatId } from "../functions";
 import { Markup } from "telegraf";
 import cron from 'node-cron';
 import { Cron } from "./cron";
+import { TelegrafContext } from "../../types";
 
 interface APIWeatherType{
   weather: [{ 
@@ -27,7 +28,7 @@ export class Weather extends Parent {
 		super('https://api.openweathermap.org/data/2.5/weather', process.env.WEATHER_KEY as string);
 	}
 
-	async displayWeatherInfo(ctx: any) {
+	async displayWeatherInfo(ctx: TelegrafContext) {
 		const weatherInfo = await this.getCityWeather();
 	
 		await ctx.replyWithHTML(
@@ -55,7 +56,7 @@ export class Weather extends Parent {
 		}
 	}
 
-	async follow(ctx: any){
+	async follow(ctx: TelegrafContext){
 		const time = ctx.message.text.split(':').reverse().join(' ');
 
 		await UserModel.findOneAndUpdate(
@@ -64,11 +65,10 @@ export class Weather extends Parent {
 		);
 		await ctx.reply(ctx.i18n.t('weather.followSuccess'))
 
-		this.cron = new Cron();
-		this.cron.start(time, () => this.displayWeatherInfo(ctx));
+		this.cron = new Cron(time, () => this.displayWeatherInfo(ctx));
 	}
 
-	async unfollow (ctx: any) {
+	async unfollow (ctx: TelegrafContext) {
 		await UserModel.findOneAndUpdate(
 			{_id: getChatId(ctx), weatherStatus: true}, 
 			{weatherStatus: false}

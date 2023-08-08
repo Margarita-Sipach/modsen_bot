@@ -9,3 +9,5 @@ export interface PlaceType {
 	link: string,
 	img: string
 }
+
+export type AnimalCommandsType = 'cat' | 'dog'

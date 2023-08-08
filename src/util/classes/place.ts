@@ -48,6 +48,7 @@ export class Place extends Compilation<PlaceType | string>{
 			`${this.url}geoname`
 		);
 
+		console.log(coordinates)
 		this.coordinates = coordinates; 
 	}
 

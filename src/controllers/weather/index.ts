@@ -1,20 +1,20 @@
 import { Markup, Scenes } from 'telegraf'
 import { UserModel } from '../../models/User';
-import { createButton, getChatId, sendError } from '../../util/functions';
+import { createButton, getChatId } from '../../util/functions';
 import { Weather } from '../../util/classes/weather';
-import { checkCity, checkTime } from '../../util/functions/check';
-import { time } from 'console';
+import { checkCity } from '../../util/functions/check';
 import { ValidationError } from '../../util/classes/err/validation';
+import { TelegrafContext } from '../../types';
 
 export const weatherScene = new Scenes.WizardScene('weather', 
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		ctx.session.weather = new Weather()
 		ctx.reply(ctx.i18n.t('weather.city'));
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		try{
-			const inputCity = await ctx.message.text;
+			const inputCity = ctx.message.text;
 			if(checkCity(inputCity)) throw new ValidationError(ctx.i18n.t('error.city'))
 
 			ctx.session.weather.city = inputCity;
@@ -31,7 +31,7 @@ export const weatherScene = new Scenes.WizardScene('weather',
 			throw new ValidationError(ctx.i18n.t('error.city'))
 		}
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		const buttonId = await ctx.callbackQuery?.data;
 
 		switch (buttonId) {

@@ -1,28 +1,30 @@
 import { Markup, Scenes } from 'telegraf'
 import { Place } from '../../util/classes/place';
-import { back, createButton, sendError } from '../../util/functions';
+import { createButton } from '../../util/functions';
 import { checkCity } from '../../util/functions/check';
 import { ValidationError } from '../../util/classes/err/validation';
+import { TelegrafContext } from '../../types';
 
 export const placeScene = new Scenes.WizardScene('place', 
-	(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		ctx.session.place = new Place()
 		ctx.reply(ctx.i18n.t('place.city'))
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		try{
-			const city = await ctx.message.text;
+			const city = ctx.message.text;
 			if(checkCity(city)) throw new ValidationError(ctx.i18n.t('error.city'))
 
 			await ctx.session.place.setCoordinates(city);
 			return ctx.wizard.steps[++ctx.wizard.cursor](ctx)
-			
+
 		}catch(e){
+			console.log('err')
 			throw new ValidationError(ctx.i18n.t('error.city'))
 		}
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		await ctx.replyWithHTML(ctx.i18n.t('place.type'), Markup.inlineKeyboard([
 			[
 				createButton(ctx, 'natural', 'place'),
@@ -35,9 +37,9 @@ export const placeScene = new Scenes.WizardScene('place',
 		]));
 		return ctx.wizard.next();
 	},
-	async(ctx: any) => {
+	async(ctx: TelegrafContext) => {
 		try{
-			const buttonId = await ctx.callbackQuery?.data;
+			const buttonId = await ctx.callbackQuery!.data;
 			if(!buttonId) throw new ValidationError(ctx.i18n.t('error.placeType'))
 			await ctx.session.place.getAllElements(buttonId.replace('btn-', ''))
 
