@@ -11,7 +11,8 @@ export const weatherFollowScene = new Scenes.WizardScene('weather-follow',
 	async(ctx: TelegrafContext) => {
 		const time = ctx.message.text;
 		if(checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'))
-		await ctx.session.weather.follow(ctx);
+		await ctx.session.weather.follow(time);
+		await ctx.reply(ctx.i18n.t('weather.followSuccess'))
 		return ctx.scene.leave();
 	}
 );

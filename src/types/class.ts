@@ -10,4 +10,16 @@ export interface PlaceType {
 	img: string
 }
 
+export interface WeatherType {
+	city: string;
+	desc: string;
+	temp: number
+	speed: number
+}
+
+export interface TaskType {
+	title: string, 
+	body: string
+}
+
 export type AnimalCommandsType = 'cat' | 'dog'

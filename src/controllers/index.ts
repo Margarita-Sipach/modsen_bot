@@ -7,3 +7,4 @@ export { taskAddScene } from './task/add';
 export { taskUpdateScene } from './task/update';
 export { animalScene } from './animal';
 export { weatherFollowScene } from './weather/follow';
+export { weatherUnfollowScene } from './weather/unfollow';

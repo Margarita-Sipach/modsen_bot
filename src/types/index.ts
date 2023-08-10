@@ -22,6 +22,12 @@ export interface TelegrafContext extends Context<Update.MessageUpdate<Message.Te
 	cat: Animal;
 	dog: Animal;
 	callbackQuery: any;
+	subs: {
+		[id: string]: {
+			weather: Weather;
+			task: Task;
+		}
+	}
 }
 
 

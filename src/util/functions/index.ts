@@ -14,3 +14,10 @@ export const sendError = (ctx: TelegrafContext, message: string) => {
 	ctx.reply(message);
 	return back(ctx)
 }
+
+export const capitalize = (str: string) => {
+	const [firstLetter, ...rest] = str;
+	return `${firstLetter.toUpperCase()}${rest.join('').toLowerCase()}`;
+}
+
+export const strike = (str: string) => `<s>${str}</s>`
