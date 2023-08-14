@@ -1,9 +1,8 @@
 import { Markup, Scenes } from 'telegraf'
-import { capitalize, createButton, getChatId, getUserMessage, sendCommandText } from '../../util/functions';
-import { checkCity } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
+import { createButton, getChatId } from '../../util/functions';
 import { TelegrafContext } from '../../types';
 import { WizardScene } from 'telegraf/typings/scenes';
+import { UserModel } from '../../models/User';
 
 export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather', 
 	async(ctx) => {
@@ -12,41 +11,30 @@ export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		if(!chatId) return ctx.scene.leave()
 		
 		ctx.session.weather = ctx.subs[chatId].weather;
-		await sendCommandText(ctx, 'city');
+
+		const noteButton = ctx.session.weather.status 
+		? [createButton(ctx, 'unfollow', {city: ctx.session.weather.city})]
+		: [];
+
+		const info = await UserModel.findById(chatId)
+
+		const sendInfo = ctx.session.weather.status 
+		? ctx.i18n.t('weather.followed', {city: info?.city, time: info?.time})
+		: ctx.i18n.t('weather.unfollowed');
+
+		await ctx.replyWithHTML(sendInfo, Markup.inlineKeyboard([
+			[...noteButton], 
+			[createButton(ctx, 'newCity')]
+		]));
+
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
-		try{
-			const inputCity = ctx.session.weather.changeCity = capitalize(getUserMessage(ctx));
-			if(checkCity(inputCity)) throw new ValidationError(ctx.i18n.t('error.city'))
-
-			const weatherInfo = await ctx.session.weather.getWeatherInfo();
-
-			await ctx.replyWithHTML(
-				ctx.i18n.t('weather.info', weatherInfo), 
-				Markup.inlineKeyboard([createButton(ctx, 'newCity')])
-			);
-
-			const noteButton = ctx.session.weather.status
-				? createButton(ctx, 'unfollow', {city: ctx.session.weather.city}) 
-				: createButton(ctx, 'follow', {city: inputCity}) 
-
-			await ctx.replyWithHTML(ctx.i18n.t('weather.followTitle'), Markup.inlineKeyboard([noteButton]));
-			return ctx.wizard.next();
-
-		}catch{
-			throw new ValidationError(ctx.i18n.t('error.city'))
-		}
-	},
-	async(ctx) => {
-		const buttonId = await ctx.callbackQuery?.data;
+		const buttonId = ctx.callbackQuery?.data;
 
 		switch (buttonId) {
-			case 'btn-follow':
-				ctx.scene.enter('weather-follow');
-				break
 			case 'btn-newCity': 
-				ctx.scene.enter('weather');
+				ctx.scene.enter('weather-city');
 				break;
 			case 'btn-unfollow':
 				ctx.scene.enter('weather-unfollow');
@@ -54,5 +42,5 @@ export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		}
 
 		return ctx.scene.leave();
-	}
+	},
 );

@@ -1,4 +1,5 @@
 export { startScene } from './start';
+import { weatherCityScene } from './weather/city';
 export { helpScene } from './help';
 export { placeScene } from './place';
 export { weatherScene } from './weather';
@@ -9,3 +10,4 @@ export { animalScene } from './animal';
 export { weatherFollowScene } from './weather/follow';
 export { weatherUnfollowScene } from './weather/unfollow';
 export { placeTypeScene } from './place/type';
+export { weatherCityScene } from './weather/city';

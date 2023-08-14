@@ -13,7 +13,8 @@ export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('t
 		const tasksInfo = tasks.reduce((acc, item, index) => {
 			const title = `${index + 1}. ${item.title}`;
 			const body = item.body;
-			const info = ctx.i18n.t('task.info', {title, body});
+			const time = item.time ? `(${item.time})` : '';
+			const info = ctx.i18n.t('task.info', {title, body, time});
 			return `${acc}\n${item.status ? strike(info) : info}`
 		}, '') || ctx.i18n.t('task.empty');
 

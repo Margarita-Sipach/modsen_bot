@@ -80,7 +80,7 @@ mongoose.connection.on('open', async() => {
 	bot.help((ctx: TelegrafContext) => ctx.scene.enter('help'));
 
 	const animalSceneIds = ['cat', 'dog'];
-	const sceneIds = [...animalSceneIds, 'place', 'place-type', 'weather', 'task', 'weather-follow', 'weather-unfollow', 'task-add', 'task-update']
+	const sceneIds = [...animalSceneIds, 'place', 'place-type', 'weather', 'task', 'weather-follow', 'weather-unfollow', 'weather-city', 'task-add', 'task-update']
 
 	sceneIds.forEach((sceneId) => {
 		const commandId = animalSceneIds.includes(sceneId) ? 'animal' : sceneId;
