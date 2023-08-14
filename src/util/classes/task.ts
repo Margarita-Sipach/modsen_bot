@@ -1,8 +1,6 @@
-import { Markup, Telegraf } from "telegraf";
 import { TaskModel } from "../../models/Task"
-import { getChatId, strike } from './../functions/index';
+import { sendCommandText } from './../functions/index';
 import { UserModel } from "../../models/User";
-import cron from 'node-cron';
 import { Cron } from "./cron";
 import { TelegrafContext } from "../../types";
 import { bot } from "../..";
@@ -31,9 +29,12 @@ export class Task {
 				{parse_mode: 'HTML'}
 			);
 		}
+
 		(await this.getTasks()).forEach(item => {
-			this.cron[String(item._id)] = new Cron(sendHTML)
-			item.status && (this.cron[String(item._id)].start(item.time, item as TaskType))
+			if(item.status && item.time){
+				this.cron[String(item._id)] = new Cron(sendHTML);
+				this.cron[String(item._id)].start(item.time, item as TaskType);
+			}
 		})
 	}
 
@@ -55,7 +56,7 @@ export class Task {
 			);
 
 			await ctx.replyWithHTML(ctx.i18n.t('task.info', taskInfo))
-			await ctx.reply(ctx.i18n.t('task.add-success'));
+			await sendCommandText(ctx, 'add-success')
 
 			time && this.cron[String(task._id)].start(time, taskInfo)
 

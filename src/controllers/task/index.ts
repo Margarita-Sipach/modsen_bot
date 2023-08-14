@@ -1,15 +1,14 @@
 import { Markup, Scenes } from 'telegraf'
-import { UserModel } from '../../models/User';
 import { createButton, getChatId, strike } from '../../util/functions';
-import { TaskModel } from './../../models/Task';
-import { Task } from '../../util/classes/task';
 import { TelegrafContext } from '../../types';
-import { CallbackQuery } from 'telegraf/typings/core/types/typegram';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const taskScene = new Scenes.WizardScene('task', 
-	async(ctx: TelegrafContext) => {
-		ctx.session.task = ctx.subs[getChatId(ctx)].task;
-	
+export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task', 
+	async(ctx) => {
+		const chatId = getChatId(ctx);
+		if(!chatId) return ctx.scene.leave();
+
+		ctx.session.task = ctx.subs[chatId].task;
 		const tasks = await ctx.session.task.getTasks();
 		const tasksInfo = tasks.reduce((acc, item, index) => {
 			const title = `${index + 1}. ${item.title}`;
@@ -20,14 +19,14 @@ export const taskScene = new Scenes.WizardScene('task',
 
 		await ctx.replyWithHTML(ctx.i18n.t('task.list', {tasks: tasksInfo}), 
 			Markup.inlineKeyboard([
-				[createButton(ctx, 'add', 'task')],
-				[createButton(ctx, 'update', 'task')]
+				[createButton(ctx, 'add')],
+				[createButton(ctx, 'update')]
 			])
 		);
 		return ctx.wizard.next();
 	},
-	async(ctx: TelegrafContext) => {
-		const buttonId = await ctx.callbackQuery?.data;
+	async(ctx) => {
+		const buttonId = ctx.callbackQuery?.data;
 
 		switch (buttonId) {
 			case 'btn-add':

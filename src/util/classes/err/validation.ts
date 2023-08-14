@@ -1,5 +1,4 @@
 import { TelegrafContext } from "../../../types";
-import { back } from "../../functions";
 
 export class ValidationError extends Error {
   constructor(message: string) {
@@ -9,6 +8,7 @@ export class ValidationError extends Error {
 
 	sendError (ctx: TelegrafContext) {
 		ctx.reply(this.message);
-		return back(ctx)
+		ctx.wizard.back();
+		return ctx.wizard.next();
 	}
 }

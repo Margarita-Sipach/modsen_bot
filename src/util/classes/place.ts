@@ -47,8 +47,7 @@ export class Place extends Compilation<PlaceType | string>{
 			],
 			`${this.url}geoname`
 		);
-
-		console.log(coordinates)
+		if(coordinates.status === 'NOT_FOUND') throw new Error()
 		this.coordinates = coordinates; 
 	}
 
@@ -60,13 +59,15 @@ export class Place extends Compilation<PlaceType | string>{
 				[
 					['apikey', this.key], 
 					['kinds', this.placeKind], 
-					['lon_min', lon - 1], 
-					['lat_min', lat - 1], 
-					['lon_max', lon + 1], 
-					['lat_max', lat + 1]
+					['lon_min', lon - 0.5], 
+					['lat_min', lat - 0.5], 
+					['lon_max', lon + 0.5], 
+					['lat_max', lat + 0.5]
 				],
 				`${this.url}bbox`, 
 			);
+
+			if(places.status === 'NOT_FOUND') throw new Error()
 
 			const placeIds = places.features
 				.filter(({properties}) => properties.wikidata)
@@ -78,6 +79,8 @@ export class Place extends Compilation<PlaceType | string>{
 	async getNewElement(){
 		const index = this.getRandomPositiveInteger(this.allElements.length)
 		const place: APIPlaceType = await this.getData([['apikey', this.key]], `${this.url}xid/${this.allElements[index]}`);
+
+		if(place.status === 'NOT_FOUND') throw new Error()
 
 		return {
 			title: place.name, 

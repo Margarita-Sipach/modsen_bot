@@ -1,9 +1,11 @@
 import { Scenes } from 'telegraf'
 import { TelegrafContext } from '../../types';
+import { sendCommandText, sendText } from '../../util/functions';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const helpScene = new Scenes.WizardScene('help', 
-	(ctx: TelegrafContext) => {
-		ctx.reply(ctx.i18n.t('commands'))
+export const helpScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('help', 
+	(ctx) => {
+		sendText(ctx, 'commands');
 		return ctx.scene.leave();
 	}
 );

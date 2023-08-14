@@ -4,22 +4,21 @@ import { session } from "telegraf";
 import { Scenes } from 'telegraf';
 import { Animal } from "./util/classes/animal";
 import mongoose from "mongoose";
-import { sendError } from "./util/functions";
 import { ValidationError } from "./util/classes/err/validation";
-import { AxiosError } from "axios";
 import { i18n } from "./i18n";
 import * as scenes from './controllers'
 import { TelegrafContext } from "./types";
 import { UserModel } from "./models/User";
 import { Weather } from "./util/classes/weather";
-import { TaskModel } from "./models/Task";
 import { Task } from "./util/classes/task";
+import { sendText } from "./util/functions";
 const rateLimit = require('telegraf-ratelimit')
 
 dotenv.config();
 
 const startDb = async() => {
 	try{
+		console.log('startDB')
 		await mongoose.connect(process.env.DB_URL as string);
 	} catch(e){
 		console.log(e)
@@ -31,6 +30,7 @@ startDb()
 export const bot: Telegraf<TelegrafContext> = new Telegraf(process.env.BOT_TOKEN as string);
 
 mongoose.connection.on('open', async() => {
+	console.log('openDB')
 
 	const users = await UserModel.find();
 	bot.context.subs = Object.fromEntries(await Promise.all(
@@ -40,21 +40,22 @@ mongoose.connection.on('open', async() => {
 			return [item._id, {weather, task}]
 		})
 	))
-
+	
 	bot.catch((err: unknown, ctx: TelegrafContext) => {
 		console.log(err)
-		if(err instanceof ValidationError) return err.sendError(ctx)
-		else if((err as AxiosError).response?.status) return sendError(ctx, 'Неправильно введены данные')
+		if(err instanceof ValidationError) {
+			err.sendError(ctx)
+		}
 		else {
-			ctx.reply('Упс очень странная ошибка, я ее не знаю...');
-			return ctx.scene.leave();
+			sendText(ctx, 'error.unknown');
+			ctx.scene.leave();
 		}
 	});
 
 	const limitConfig = {
 		window: 3000,
 		limit: 1,
-		onLimitExceeded: (ctx: TelegrafContext) => ctx.reply(ctx.i18n.t('limit'))
+		onLimitExceeded: (ctx: TelegrafContext) => sendText(ctx, 'limit')
 	}
 
 	const commands = i18n.t('ru', 'commands').split('\n').map((item: string) => {
@@ -79,30 +80,12 @@ mongoose.connection.on('open', async() => {
 	bot.help((ctx: TelegrafContext) => ctx.scene.enter('help'));
 
 	const animalSceneIds = ['cat', 'dog'];
-	const sceneIds = [...animalSceneIds, 'place', 'weather', 'task', 'weather-follow', 'weather-unfollow', 'task-add', 'task-update']
+	const sceneIds = [...animalSceneIds, 'place', 'place-type', 'weather', 'task', 'weather-follow', 'weather-unfollow', 'task-add', 'task-update']
 
 	sceneIds.forEach((sceneId) => {
 		const commandId = animalSceneIds.includes(sceneId) ? 'animal' : sceneId;
-		bot.command(commandId, (ctx: TelegrafContext) => ctx.scene.enter(sceneId));
+		bot.command(sceneId, (ctx: TelegrafContext) => ctx.scene.enter(commandId));
 	} )
-
-	stage.command('exit', (ctx: TelegrafContext) => {
-		ctx.reply(ctx.i18n.t('exit'));
-		return ctx.scene.leave();
-	});
-
-	// stage.action('exit', (ctx: TelegrafContext) => {
-	// 	ctx.reply(ctx.i18n.t('exit'));
-	// 	return ctx.scene.leave();
-	// });
-
-
-// bot.use(async(ctx) => await ctx.reply('Команда началась', Markup.keyboard([
-// 	['exit'] 
-// ])
-// .oneTime()
-// .resize()
-// ))
 
 	bot.launch();
 })

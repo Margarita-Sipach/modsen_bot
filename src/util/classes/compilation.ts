@@ -9,7 +9,7 @@ export abstract class Compilation<T> extends Parent{
 
 	protected getRandomPositiveInteger = (max: number) => Math.floor(Math.random() * max);
 
-	protected abstract getAllElements(param?: string):void
+	protected abstract getAllElements(param?: string):void | unknown
 
 	abstract getNewElement(param?: string):Promise<T | Error>
 }

@@ -1,14 +1,18 @@
 import { Scenes } from 'telegraf'
 import { UserModel } from '../../models/User';
-import { getChatId } from '../../util/functions';
+import { getChatId, sendCommandText } from '../../util/functions';
 import { TelegrafContext } from '../../types';
 import { Weather } from '../../util/classes/weather';
 import { Task } from '../../util/classes/task';
 import { bot } from '../..';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const startScene = new Scenes.WizardScene('start', 
-	async(ctx: TelegrafContext) => {
+export const startScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('start', 
+	async(ctx) => {
+		console.log('start')
 		const chatId = getChatId(ctx);
+
+		if(!chatId) return;
 		const isUserExist = await UserModel.findById(chatId);
 
 		if(!isUserExist) {
@@ -18,8 +22,8 @@ export const startScene = new Scenes.WizardScene('start',
 				task: new Task(chatId),
 			})
 		}
-	
-		await ctx.reply(ctx.i18n.t('start.hello', {ctx}))
+
+		await sendCommandText(ctx, 'hello', {ctx});
 		return ctx.scene.leave();
 	}
 );

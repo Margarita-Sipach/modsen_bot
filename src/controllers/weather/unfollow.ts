@@ -1,12 +1,12 @@
-import { Markup, Scenes } from 'telegraf'
-import { checkTime } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
+import { Scenes } from 'telegraf'
 import { TelegrafContext } from '../../types';
+import { sendText } from '../../util/functions';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const weatherUnfollowScene = new Scenes.WizardScene('weather-unfollow', 
-	async(ctx: TelegrafContext) => {
+export const weatherUnfollowScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather-unfollow', 
+	async(ctx) => {
 		await ctx.session.weather.unfollow();
-		await ctx.reply(ctx.i18n.t('weather.unfollowSuccess'))
+		await sendText(ctx, 'weather.unfollowSuccess');
 		return ctx.scene.leave();
 	}
 );

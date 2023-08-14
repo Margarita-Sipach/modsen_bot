@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { boolean } from "webidl-conversions";
 
 const UserShema = new mongoose.Schema({
 	_id: {type: Number, require: true},

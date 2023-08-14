@@ -1,32 +1,35 @@
 import { Markup, Scenes } from 'telegraf'
-import { UserModel } from '../../models/User';
-import { capitalize, createButton, getChatId } from '../../util/functions';
-import { Weather } from '../../util/classes/weather';
+import { capitalize, createButton, getChatId, getUserMessage, sendCommandText } from '../../util/functions';
 import { checkCity } from '../../util/functions/check';
 import { ValidationError } from '../../util/classes/err/validation';
 import { TelegrafContext } from '../../types';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const weatherScene = new Scenes.WizardScene('weather', 
-	async(ctx: TelegrafContext) => {
-		ctx.session.weather = ctx.subs[getChatId(ctx)].weather;
-		ctx.reply(ctx.i18n.t('weather.city'));
+export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather', 
+	async(ctx) => {
+		console.log('weather')
+		const chatId = getChatId(ctx);
+		if(!chatId) return ctx.scene.leave()
+		
+		ctx.session.weather = ctx.subs[chatId].weather;
+		await sendCommandText(ctx, 'city');
 		return ctx.wizard.next();
 	},
-	async(ctx: TelegrafContext) => {
+	async(ctx) => {
 		try{
-			const inputCity = ctx.session.weather.changeCity = capitalize(ctx.message.text);
+			const inputCity = ctx.session.weather.changeCity = capitalize(getUserMessage(ctx));
 			if(checkCity(inputCity)) throw new ValidationError(ctx.i18n.t('error.city'))
 
 			const weatherInfo = await ctx.session.weather.getWeatherInfo();
 
 			await ctx.replyWithHTML(
 				ctx.i18n.t('weather.info', weatherInfo), 
-				Markup.inlineKeyboard([createButton(ctx, 'newCity', 'weather')])
+				Markup.inlineKeyboard([createButton(ctx, 'newCity')])
 			);
 
 			const noteButton = ctx.session.weather.status
-				? createButton(ctx, 'unfollow', 'weather', {city: ctx.session.weather.city}) 
-				: createButton(ctx, 'follow', 'weather', {city: inputCity}) 
+				? createButton(ctx, 'unfollow', {city: ctx.session.weather.city}) 
+				: createButton(ctx, 'follow', {city: inputCity}) 
 
 			await ctx.replyWithHTML(ctx.i18n.t('weather.followTitle'), Markup.inlineKeyboard([noteButton]));
 			return ctx.wizard.next();
@@ -35,7 +38,7 @@ export const weatherScene = new Scenes.WizardScene('weather',
 			throw new ValidationError(ctx.i18n.t('error.city'))
 		}
 	},
-	async(ctx: TelegrafContext) => {
+	async(ctx) => {
 		const buttonId = await ctx.callbackQuery?.data;
 
 		switch (buttonId) {

@@ -18,13 +18,14 @@ export class Animal extends Compilation<AnimalType>{
 	}
 
 	protected async getAllElements(){
-		const data: APIType = await this.getData([['page', 1], ['per_page', 100]]);
+		const data: APIType = await this.getData([['page', 1], ['per_page', 20]]);
 
 		const photos = data.photos.map(({src, photographer}) => ({url: src.large, photographer}));
 		this.allElements = photos;
 	}
 	
 	async getNewElement(){
+		!this.allElements.length && (await this.getAllElements())
 		const index = this.getRandomPositiveInteger(this.allElements.length)
 		return this.allElements[index]
 	}

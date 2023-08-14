@@ -1,5 +1,5 @@
 export const checkCity = (city: string) => {
-		return Number(city)
+	return Number(city)
 }
 
 export const checkTime = (time: string) => {

@@ -8,3 +8,4 @@ export { taskUpdateScene } from './task/update';
 export { animalScene } from './animal';
 export { weatherFollowScene } from './weather/follow';
 export { weatherUnfollowScene } from './weather/unfollow';
+export { placeTypeScene } from './place/type';

@@ -1,12 +1,10 @@
 import { UserModel } from "../../models/User";
 import { Parent } from "./parent";
-import { capitalize, createButton, getChatId } from "../functions";
-import { Markup, Telegraf } from "telegraf";
-import { Cron } from "./cron";
-import { TelegrafContext } from "../../types";
-import { i18n } from "../../i18n";
+import { capitalize } from "../functions";
 import { bot } from './../../index';
 import { WeatherType } from "../../types/class";
+import { i18n } from "../../i18n";
+import { Cron } from "./cron";
 
 interface APIWeatherType{
   weather: [{ 
@@ -76,7 +74,7 @@ export class Weather extends Parent {
 
 	async follow(newTime: string){
 
-		this.cron?.stop()
+		this.cron?.cronId && this.cron?.stop()
 
 		const weatherStatus = this.status = true;
 		const time = this.time = newTime;

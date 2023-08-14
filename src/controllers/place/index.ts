@@ -1,59 +1,26 @@
 import { Markup, Scenes } from 'telegraf'
 import { Place } from '../../util/classes/place';
-import { createButton } from '../../util/functions';
+import { createButton, getUserMessage, sendCommandText } from '../../util/functions';
 import { checkCity } from '../../util/functions/check';
 import { ValidationError } from '../../util/classes/err/validation';
 import { TelegrafContext } from '../../types';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const placeScene = new Scenes.WizardScene('place', 
+export const placeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('place', 
 	async(ctx: TelegrafContext) => {
 		ctx.session.place = new Place()
-		ctx.reply(ctx.i18n.t('place.city'))
+		sendCommandText(ctx, 'city');
 		return ctx.wizard.next();
 	},
 	async(ctx: TelegrafContext) => {
 		try{
-			const city = ctx.message.text;
-			if(checkCity(city)) throw new ValidationError(ctx.i18n.t('error.city'))
+			const city = getUserMessage(ctx);
+			if(checkCity(city)) throw new ValidationError(ctx.i18n.t('error.city'));
 
 			await ctx.session.place.setCoordinates(city);
-			return ctx.wizard.steps[++ctx.wizard.cursor](ctx)
-
+			await ctx.scene.enter('place-type');
 		}catch(e){
-			console.log('err')
 			throw new ValidationError(ctx.i18n.t('error.city'))
 		}
 	},
-	async(ctx: TelegrafContext) => {
-		await ctx.replyWithHTML(ctx.i18n.t('place.type'), Markup.inlineKeyboard([
-			[
-				createButton(ctx, 'natural', 'place'),
-				createButton(ctx, 'historic', 'place')
-			],
-			[
-				createButton(ctx, 'cultural', 'place'),
-				createButton(ctx, 'architecture', 'place')
-			]
-		]));
-		return ctx.wizard.next();
-	},
-	async(ctx: TelegrafContext) => {
-		try{
-			const buttonId = await ctx.callbackQuery!.data;
-			if(!buttonId) throw new ValidationError(ctx.i18n.t('error.placeType'))
-			await ctx.session.place.getAllElements(buttonId.replace('btn-', ''))
-
-			const place = await ctx.session.place.getNewElement();
-			const {title, text, link, img} = place;
-
-			img && (await ctx.replyWithPhoto({ url: img }));
-			await ctx.replyWithHTML(ctx.i18n.t('place.info', {title, text}), Markup.inlineKeyboard([
-				[Markup.button.url(ctx.i18n.t('place.more'), link)],
-			]));
-
-		} catch(e){
-			throw new ValidationError(ctx.i18n.t('error.placeType'))
-		}
-		return ctx.scene.leave();
-	}
 );

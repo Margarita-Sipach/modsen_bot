@@ -1,7 +1,7 @@
 import cron from 'node-cron';
 
 export class Cron<T>{
-	private cronId: cron.ScheduledTask | null = null
+	cronId: cron.ScheduledTask | null = null
 
 	constructor(private callback: Function){}
 
