@@ -1,48 +1,53 @@
-import { Markup, Scenes } from 'telegraf'
-import { User } from '../../models/User';
-import { getChatId } from '../../util/functions';
+import { Markup, Scenes } from 'telegraf';
+import { createButton, getChatId } from '@fn';
+import { TelegrafContext } from '@types';
+import { WizardScene } from 'telegraf/typings/scenes';
+import { UserModel } from '@models';
+import { checkExit } from '@check';
 
-export const weatherScene = new Scenes.WizardScene('weather', 
-	async(ctx: any) => {
-		ctx.reply(ctx.i18n.t('weather.city'));
-		console.log(1111111)
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const inputCity = await ctx.message.text;
-		console.log(await ctx.message.text)
+export const weatherScene: WizardScene<TelegrafContext> =
+  new Scenes.WizardScene(
+    'weather',
+    async ctx => {
+      console.log('weather');
+      const chatId = getChatId(ctx);
+      if (!chatId) return ctx.scene.leave();
 
-		ctx.weather.city = inputCity;
-		console.log(inputCity)
-		await ctx.weather.displayWeatherInfo(ctx);
+      ctx.session.weather = ctx.subs[chatId].weather;
 
-		const user = await User.findById(getChatId(ctx));
-		const noteButton = user!.weatherStatus
-		? Markup.button.callback(ctx.i18n.t('weather.unfollow', {city: user!.city}), 'weather-unfollow') 
-		: Markup.button.callback(ctx.i18n.t('weather.follow', {city: inputCity}), 'weather-follow') ;
+      const noteButton = ctx.session.weather.status
+        ? [createButton(ctx, 'unfollow', { city: ctx.session.weather.city })]
+        : [];
 
-		await ctx.replyWithHTML(ctx.i18n.t('weather.followTitle'), Markup.inlineKeyboard([noteButton]));
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const buttonId = await ctx.callbackQuery?.data;
+      const info = await UserModel.findById(chatId);
 
-		switch (buttonId) {
-			case 'weather-follow':
-				await ctx.reply(ctx.i18n.t('weather.time'));
-				return ctx.wizard.next();
-			case 'weather-city': 
-				ctx.scene.enter('weather');
-				break;
-			case 'weather-unfollow':
-				await ctx.weather.unfollow(ctx);
-				break;
-		}
+      const sendInfo = ctx.session.weather.status
+        ? ctx.i18n.t('weather.followed', { city: info?.city, time: info?.time })
+        : ctx.i18n.t('weather.unfollowed');
 
-		return ctx.scene.leave();
-	},
-	async(ctx: any) => {
-		await ctx.weather.follow(ctx);
-		return ctx.scene.leave();
-	}
-);
+      await ctx.replyWithHTML(
+        sendInfo,
+        Markup.inlineKeyboard([
+          [...noteButton],
+          [createButton(ctx, 'newCity')],
+        ]),
+      );
+
+      return ctx.wizard.next();
+    },
+    async ctx => {
+      if (checkExit(ctx)) return ctx.scene.enter('exit');
+      const buttonId = ctx.callbackQuery?.data;
+
+      switch (buttonId) {
+        case 'btn-newCity':
+          ctx.scene.enter('weather-city');
+          break;
+        case 'btn-unfollow':
+          ctx.scene.enter('weather-unfollow');
+          break;
+      }
+
+      return ctx.scene.leave();
+    },
+  );

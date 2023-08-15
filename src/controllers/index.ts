@@ -1,9 +1,14 @@
-import { startScene } from './start';
-import { helpScene } from './help';
-import { catScene, dogScene } from './animal';
-import { placeScene } from './place/index';
-import { weatherScene } from './weather';
-import { taskScene } from './task/index';
-import { taskAddScene } from './task/add';
-
-export {startScene, helpScene, catScene, dogScene, placeScene, weatherScene, taskScene, taskAddScene}
+export { startScene } from './start';
+export { exitScene } from './exit';
+export { settingsScene } from './settings';
+export { helpScene } from './help';
+export { placeScene } from './place';
+export { weatherScene } from './weather';
+export { taskScene } from './task';
+export { taskAddScene } from './task/add';
+export { taskUpdateScene } from './task/update';
+export { animalScene } from './animal';
+export { weatherFollowScene } from './weather/follow';
+export { weatherUnfollowScene } from './weather/unfollow';
+export { placeTypeScene } from './place/type';
+export { weatherCityScene } from './weather/city';

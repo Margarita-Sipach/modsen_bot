@@ -1,54 +1,105 @@
-import { User } from "../../models/User";
-import { Parent } from "./parent";
-import { getChatId } from "../functions";
-import { Markup } from "telegraf";
-import cron from 'node-cron';
+import { UserModel } from '@models';
+import { Parent } from './abstract';
+import { capitalize } from '@fn';
+import { WeatherType } from '@types';
+import { i18n } from '@i18n';
+import { Cron } from './cron';
+import { bot } from '@bot';
+
+interface APIWeatherType {
+  weather: [
+    {
+      description: string;
+    },
+  ];
+  base: string;
+  main: {
+    temp: number;
+  };
+  wind: {
+    speed: number;
+  };
+}
 
 export class Weather extends Parent {
+  changeCity: string = '';
+  city: string = '';
+  time: string = '';
+  cron: Cron<WeatherType> | null = null;
+  status: boolean = false;
 
-	_city: string;
-	cronId: any;
+  constructor(private readonly userId: number) {
+    super(
+      'https://api.openweathermap.org/data/2.5/weather',
+      process.env.WEATHER_KEY as string,
+    );
+    this.init();
+  }
 
-	constructor(){
-		super('https://api.openweathermap.org/data/2.5/weather', process.env.WEATHER_KEY as string);
-		this._city = '';
-		this.cronId = '';
-	}
+  async init() {
+    const userInfo = await UserModel.findById(this.userId);
 
-	set city(city: string) {
-		this._city = city;
-	}
+    const sendHTML = async (weatherInfo: WeatherType) => {
+      bot.telegram.sendMessage(
+        this.userId,
+        i18n.t('ru', 'weather.info', weatherInfo),
+        { parse_mode: 'HTML' },
+      );
+    };
+    this.cron = new Cron(sendHTML);
 
-	async displayWeatherInfo(ctx: any) {
-		const weatherInfo = await this.getCityWeather();
-	
-		await ctx.replyWithHTML(
-			ctx.i18n.t('weather.info', {...weatherInfo, city: this._city}), 
-			Markup.inlineKeyboard([Markup.button.callback(ctx.i18n.t('weather.newCity'), 'weather-city')])
-		);
-	}
+    if (userInfo?.weatherStatus) {
+      this.status = userInfo?.weatherStatus;
+      this.changeCity = this.city = userInfo?.city;
+      this.time = userInfo?.time;
+      const weatherInfo = await this.getWeatherInfo();
 
-	async getCityWeather(){
-		const json = await this.getData(this.url, [['q', this._city], ['appid', this.key], ['lang', 'ru']]);
-		const [firstLetter, ...rest] = json.weather[0].description
-		return {desc: `${firstLetter.toUpperCase()}${rest}`, temp: json.main.temp, speed: json.wind.speed}
-	}
+      this.cron.start(this.time, weatherInfo);
+    }
+  }
 
-	async follow(ctx: any){
-		const time = ctx.message.text.split(':').reverse().join(' ');
+  async getWeatherInfo() {
+    const weatherInfo: APIWeatherType = await this.getData([
+      ['q', this.changeCity],
+      ['appid', this.key],
+      ['lang', 'ru'],
+      ['units', 'metric'],
+    ]);
 
-		await User.findOneAndUpdate(
-			{_id: getChatId(ctx), weatherStatus: false}, 
-			{weatherStatus: true, city: this._city, time}
-		);
-		await ctx.reply(ctx.i18n.t('weather.followSuccess'))
+    return {
+      city: capitalize(this.changeCity),
+      desc: capitalize(weatherInfo.weather[0].description),
+      temp: weatherInfo.main.temp,
+      speed: weatherInfo.wind.speed,
+    };
+  }
 
-		this.cronId = cron.schedule(`${time} * * *`, async() => ctx.weather.displayWeatherInfo(ctx));
-	}
+  async follow(newTime: string) {
+    this.cron?.cronId && this.cron?.stop();
 
-	async unfollow (ctx: any) {
-		await User.findOneAndUpdate({_id: getChatId(ctx), weatherStatus: true}, {weatherStatus: false});
-		await this.cronId.stop()
-		await ctx.editMessageText(ctx.i18n.t('weather.unfollowSuccess'))
-	}
+    const weatherStatus = (this.status = true);
+    const time = (this.time = newTime);
+    const city = (this.city = this.changeCity);
+
+    await UserModel.findOneAndUpdate(
+      { _id: this.userId, weatherStatus: false },
+      { weatherStatus: weatherStatus, city, time },
+    );
+
+    const weatherInfo = await this.getWeatherInfo();
+    this.cron?.start(this.time, weatherInfo);
+  }
+
+  async unfollow() {
+    const weatherStatus = (this.status = false);
+    const time = (this.time = '');
+    const city = (this.city = '');
+
+    await UserModel.findOneAndUpdate(
+      { _id: this.userId, weatherStatus: true },
+      { weatherStatus, time, city },
+    );
+
+    this.cron?.stop();
+  }
 }

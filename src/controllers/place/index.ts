@@ -1,16 +1,28 @@
-import { Markup, Scenes } from 'telegraf'
+import { Scenes } from 'telegraf';
+import { Place } from '@classes';
+import { getUserMessage, sendCommandText } from '@fn';
+import { checkCity, checkExit } from '@check';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
+import { WizardScene } from 'telegraf/typings/scenes';
 
-export const placeScene = new Scenes.WizardScene('place', 
-	(ctx: any) => {
-		ctx.reply(ctx.i18n.t('place.city'))
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const {title, text, link, img} = await ctx.place.getNewElement(ctx.message.text);
-		await ctx.replyWithPhoto({ url: img });
-		await ctx.replyWithHTML(ctx.i18n.t('place.info', {title, text}), Markup.inlineKeyboard([
-			[Markup.button.url(ctx.i18n.t('place.more'), link)],
-		]))
-		return ctx.scene.leave();
-	}
+export const placeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
+  'place',
+  async (ctx: TelegrafContext) => {
+    ctx.session.place = new Place();
+    sendCommandText(ctx, 'city');
+    return ctx.wizard.next();
+  },
+  async (ctx: TelegrafContext) => {
+    if (checkExit(ctx)) return ctx.scene.enter('exit');
+    try {
+      const city = getUserMessage(ctx);
+      if (checkCity(city)) throw new ValidationError(ctx.i18n.t('error.city'));
+
+      await ctx.session.place.setCoordinates(city);
+      await ctx.scene.enter('place-type');
+    } catch (e) {
+      throw new ValidationError(ctx.i18n.t('error.city'));
+    }
+  },
 );

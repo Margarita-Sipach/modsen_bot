@@ -1,41 +1,48 @@
-import { Markup, Scenes } from 'telegraf'
-import { User } from '../../models/User';
-import { getChatId } from '../../util/functions';
-import { TaskModel } from './../../models/Task';
+import { Markup, Scenes } from 'telegraf';
+import { createButton, getChatId, strike } from '@fn';
+import { TelegrafContext } from '@types';
+import { WizardScene } from 'telegraf/typings/scenes';
+import { checkExit } from '@check';
 
-export const taskScene = new Scenes.WizardScene('task', 
-	async(ctx: any) => {
-		const chatId = getChatId(ctx);
-		const userIds = (await User.findById(chatId))!.tasks;
-		const tasks = await TaskModel.find({ '_id': { $in: userIds } });
-		
-		const tasksInfo = tasks.reduce((acc, item, index) => {
-			const title = `${index + 1}. ${item.title}`;
-			const body = item.body;
-			const info = ctx.i18n.t('task.info', {title, body});
-			return `${acc}\n${item.status ? `<s>${info}</s>` : info}`
-		}, '');
+export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
+  'task',
+  async ctx => {
+    const chatId = getChatId(ctx);
+    if (!chatId) return ctx.scene.leave();
 
-		await ctx.replyWithHTML(ctx.i18n.t('task.title', {tasks: tasksInfo}), 
-			Markup.inlineKeyboard([
-				[Markup.button.callback(ctx.i18n.t('task.add'), 'task-add')],
-				[Markup.button.callback(ctx.i18n.t('task.update'), 'task-update')],
-				[Markup.button.callback(ctx.i18n.t('task.close'), 'task-close')]
-			])
-		);
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const buttonId = await ctx.callbackQuery?.data;
+    ctx.session.task = ctx.subs[chatId].task;
+    const tasks = await ctx.session.task.getTasks();
+    const tasksInfo =
+      tasks.reduce((acc, item, index) => {
+        const title = `${index + 1}. ${item.title}`;
+        const body = item.body;
+        const time = item.time ? `(${item.time})` : '';
+        const info = ctx.i18n.t('task.info', { title, body, time });
+        return `${acc}\n\n${item.status ? strike(info) : info}`;
+      }, '') || ctx.i18n.t('task.empty');
 
-		switch (buttonId) {
-			case 'task-add':
-				ctx.scene.enter('task-add');
-				break;
-			case 'task-update': 
-				ctx.scene.enter('task-update');
-				break;
-		}
-		return ctx.scene.leave();
-	},
+    await ctx.replyWithHTML(
+      ctx.i18n.t('task.list', { tasks: tasksInfo }),
+      Markup.inlineKeyboard([
+        [createButton(ctx, 'add')],
+        [createButton(ctx, 'update')],
+      ]),
+    );
+    return ctx.wizard.next();
+  },
+  async ctx => {
+    console.log(checkExit(ctx));
+    if (checkExit(ctx)) return ctx.scene.enter('exit');
+    const buttonId = ctx.callbackQuery?.data;
+
+    switch (buttonId) {
+      case 'btn-add':
+        ctx.scene.enter('task-add');
+        break;
+      case 'btn-update':
+        ctx.scene.enter('task-update');
+        break;
+    }
+    return ctx.scene.leave();
+  },
 );

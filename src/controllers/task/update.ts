@@ -1,43 +1,76 @@
-import { Markup, Scenes } from 'telegraf'
-import { getChatId } from '../../util/functions';
+import { Markup, Scenes } from 'telegraf';
+import {
+  createButton,
+  getChatId,
+  getUserMessage,
+  sendCommandText,
+  sendText,
+  strike,
+} from '@fn';
+import { TelegrafContext } from '@types';
+import { WizardScene } from 'telegraf/typings/scenes';
+import { ValidationError } from '@err';
+import { checkExit, checkNumber } from '@check';
 
-export const taskUpdateScene = new Scenes.WizardScene('task-update', 
-	async(ctx: any) => {
-		await ctx.reply(ctx.i18n.t('task.update-number'));
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const id = getChatId(ctx);
-		const task = (await ctx.task.getTasks(id))[ctx.message.text - 1];
-		console.log(task)
+export const taskUpdateScene: WizardScene<TelegrafContext> =
+  new Scenes.WizardScene(
+    'task-update',
+    async ctx => {
+      sendText(ctx, 'task.update-number');
+      return ctx.wizard.next();
+    },
+    async ctx => {
+      if (checkExit(ctx)) return ctx.scene.enter('exit');
+      const allTasks = await ctx.session.task.getTasks();
+      const taskNumber = +getUserMessage(ctx) - 1;
 
-		await ctx.replyWithHTML(ctx.i18n.t('task.info', {title: task.title, body: task.body}), 
-			Markup.inlineKeyboard([
-				[
-					Markup.button.callback(ctx.i18n.t('task.delete'), 'task-delete'),
-					Markup.button.callback(ctx.i18n.t('task.complete'), 'task-complete'),
-				],
-				[Markup.button.callback(ctx.i18n.t('task.back'), 'task-back')]
-			])
-		);
-		ctx.task.id = task._id;
-		return ctx.wizard.next();
-	},
-	async(ctx: any) => {
-		const buttonId = await ctx.callbackQuery?.data;
-		const userId = getChatId(ctx)
+      if (checkNumber(taskNumber, allTasks.length))
+        throw new ValidationError(ctx.i18n.t('error.number'));
 
-		switch (buttonId) {
-			case 'task-delete':
-				await ctx.task.delete(userId);
-				await ctx.reply(ctx.i18n.t('task.delete-success'));
-				break;			
-			case 'task-complete':
-				await ctx.task.complete(userId);
-				await ctx.reply(ctx.i18n.t('task.complete-success'));
-				break;		
-		}
-		
-		await ctx.scene.enter('task');
-	},
-);
+      const task = allTasks[taskNumber];
+
+      const taskInfo = {
+        title: task.title,
+        body: task.body,
+        time: task.time,
+      };
+
+      const completeButton = task.status
+        ? createButton(ctx, 'incomplete')
+        : createButton(ctx, 'complete');
+
+      const taskHTML = task.status
+        ? strike(ctx.i18n.t('task.info', taskInfo))
+        : ctx.i18n.t('task.info', taskInfo);
+
+      await ctx.replyWithHTML(
+        taskHTML,
+        Markup.inlineKeyboard([[completeButton, createButton(ctx, 'delete')]]),
+      );
+      ctx.session.task.id = task._id.toString();
+      return ctx.wizard.next();
+    },
+    async ctx => {
+      if (checkExit(ctx)) return ctx.scene.enter('exit');
+      const buttonId = ctx.callbackQuery?.data;
+      const userId = getChatId(ctx);
+      if (!userId) return ctx.scene.leave();
+
+      switch (buttonId) {
+        case 'btn-delete':
+          await ctx.session.task.delete(userId);
+          await sendCommandText(ctx, 'delete-success');
+          break;
+        case 'btn-complete':
+          await ctx.session.task.complete();
+          await sendCommandText(ctx, 'complete-success');
+          break;
+        case 'btn-incomplete':
+          await ctx.session.task.incomplete();
+          await sendCommandText(ctx, 'incomplete-success');
+          break;
+      }
+
+      return ctx.scene.leave();
+    },
+  );
