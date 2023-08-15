@@ -1,10 +1,9 @@
 import { Context, Scenes } from "telegraf";
 import TelegrafI18n from 'telegraf-i18n';
-import { Animal } from "../util/classes/animal";
-import { Place } from "../util/classes/place";
-import { Weather } from "../util/classes/weather";
-import { Task } from "../util/classes/task";
-import {  CallbackQuery } from "telegraf/typings/core/types/typegram";
+import { Animal, Place, Weather, Task } from "@classes";
+import { CallbackQuery } from "telegraf/typings/core/types/typegram";
+
+export * from "./class";
 
 interface SessionData extends Scenes.WizardSession<Scenes.WizardSessionData> {
 	place: Place;

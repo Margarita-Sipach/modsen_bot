@@ -19,7 +19,8 @@ export interface WeatherType {
 
 export interface TaskType {
 	title: string, 
-	body: string
+	body: string,
+	time: string
 }
 
 export type AnimalCommandsType = 'cat' | 'dog'

@@ -1,6 +1,6 @@
 import { Scenes } from 'telegraf'
-import { TelegrafContext } from '../../types';
-import { sendText } from '../../util/functions';
+import { TelegrafContext } from '@types';
+import { sendText } from '@fn';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const weatherUnfollowScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather-unfollow', 

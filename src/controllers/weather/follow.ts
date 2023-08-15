@@ -1,8 +1,8 @@
 import { Scenes } from 'telegraf'
-import { checkTime } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
-import { TelegrafContext } from '../../types';
-import { getUserMessage, sendText } from '../../util/functions';
+import { checkTime } from '@check';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
+import { getUserMessage, sendText } from '@fn';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const weatherFollowScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather-follow', 
@@ -13,6 +13,7 @@ export const weatherFollowScene: WizardScene<TelegrafContext> = new Scenes.Wizar
 	async(ctx) => {
 		const time = getUserMessage(ctx)
 		if(checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'))
+		
 		await ctx.session.weather.follow(time);
 		await sendText(ctx, 'weather.followSuccess');
 		return ctx.scene.leave();

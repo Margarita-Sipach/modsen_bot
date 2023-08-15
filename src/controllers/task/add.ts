@@ -1,8 +1,8 @@
 import { Markup, Scenes } from 'telegraf'
-import { checkTime } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
-import { TelegrafContext } from '../../types';
-import { createButton, getUserMessage, sendCommandText } from '../../util/functions';
+import { checkTime } from '@check';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
+import { createButton, getUserMessage, sendCommandText } from '@fn';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const taskAddScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task-add', 

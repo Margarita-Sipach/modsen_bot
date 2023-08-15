@@ -1,7 +1,7 @@
 import { Markup, Scenes } from 'telegraf'
-import { createButton } from '../../util/functions';
-import { ValidationError } from '../../util/classes/err/validation';
-import { TelegrafContext } from '../../types';
+import { createButton } from '@fn';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const placeTypeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('place-type', 
@@ -21,7 +21,6 @@ export const placeTypeScene: WizardScene<TelegrafContext> = new Scenes.WizardSce
 	async(ctx: TelegrafContext) => {
 		try{
 			const buttonId = ctx.callbackQuery?.data;
-			console.log(buttonId)
 
 			if(!buttonId) throw new ValidationError(ctx.i18n.t('error.placeType'))
 			await ctx.session.place.getAllElements(buttonId.replace('btn-', ''))

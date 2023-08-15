@@ -1,8 +1,8 @@
 import { Markup, Scenes } from 'telegraf'
-import { capitalize, createButton, getChatId, getUserMessage, sendCommandText } from '../../util/functions';
-import { checkCity } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
-import { TelegrafContext } from '../../types';
+import { capitalize, createButton, getUserMessage, sendCommandText } from '@fn';
+import { checkCity } from '@check';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const weatherCityScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather-city', 

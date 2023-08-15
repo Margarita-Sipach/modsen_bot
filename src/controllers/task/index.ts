@@ -1,6 +1,6 @@
 import { Markup, Scenes } from 'telegraf'
-import { createButton, getChatId, strike } from '../../util/functions';
-import { TelegrafContext } from '../../types';
+import { createButton, getChatId, strike } from '@fn';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task', 

@@ -1,7 +1,9 @@
 import { Markup, Scenes } from 'telegraf'
-import { createButton, getChatId, getUserMessage, sendCommandText, sendText, strike } from '../../util/functions';
-import { TelegrafContext } from '../../types';
+import { createButton, getChatId, getUserMessage, sendCommandText, sendText, strike } from '@fn';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
+import { ValidationError } from '@err';
+import { checkNumber } from '@check';
 
 export const taskUpdateScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task-update', 
 	async(ctx) => {
@@ -9,27 +11,33 @@ export const taskUpdateScene: WizardScene<TelegrafContext> = new Scenes.WizardSc
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
-		const task = (await ctx.session.task.getTasks())[+getUserMessage(ctx) - 1];
+		const allTasks = await ctx.session.task.getTasks();
+		const taskNumber = +getUserMessage(ctx) - 1;
+
+		if(checkNumber(taskNumber, allTasks.length)) throw new ValidationError(ctx.i18n.t('error.number'))
+		
+		const task = allTasks[taskNumber];
 
 		const taskInfo = {
 			title: task.title,
-			body: task.body
+			body: task.body,
+			time: task.time
 		}
 
 		const completeButton = task.status
 			?	createButton(ctx, 'incomplete')
 			: createButton(ctx, 'complete')
 
-		await ctx.replyWithHTML(
-			task.status 
-				? strike(ctx.i18n.t('task.info', taskInfo)) 
-				: ctx.i18n.t('task.info', taskInfo), 
+			const taskHTML = task.status 
+			? strike(ctx.i18n.t('task.info', taskInfo)) 
+			: ctx.i18n.t('task.info', taskInfo)
+			
+		await ctx.replyWithHTML(taskHTML, 
 			Markup.inlineKeyboard([
 				[
 					completeButton,
 					createButton(ctx, 'delete')
-				],
-				[Markup.button.callback(ctx.i18n.t('task.back'), 'task-back')]
+				]
 			])
 		);
 		ctx.session.task.id = task._id.toString();

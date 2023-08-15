@@ -1,4 +1,4 @@
-import { TelegrafContext } from "../../../types";
+import { TelegrafContext } from "@types";
 
 export class ValidationError extends Error {
   constructor(message: string) {

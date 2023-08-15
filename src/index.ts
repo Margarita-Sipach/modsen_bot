@@ -1,17 +1,16 @@
-import { Telegraf } from "telegraf";
-import dotenv from 'dotenv';
-import { session } from "telegraf";
-import { Scenes } from 'telegraf';
-import { Animal } from "./util/classes/animal";
+import 'module-alias/register';
 import mongoose from "mongoose";
-import { ValidationError } from "./util/classes/err/validation";
+import dotenv from 'dotenv';
+import { Telegraf, session, Scenes } from "telegraf";
 import { i18n } from "./i18n";
 import * as scenes from './controllers'
-import { TelegrafContext } from "./types";
-import { UserModel } from "./models/User";
-import { Weather } from "./util/classes/weather";
-import { Task } from "./util/classes/task";
-import { sendText } from "./util/functions";
+import { TelegrafContext } from "@types";
+import { ValidationError } from '@err';
+import { Task, Weather, Animal } from '@classes';
+import { sendText } from '@fn';
+import { UserModel } from '@models';
+import { bot } from './bot';
+
 const rateLimit = require('telegraf-ratelimit')
 
 dotenv.config();
@@ -27,11 +26,7 @@ const startDb = async() => {
 
 startDb()
 
-export const bot: Telegraf<TelegrafContext> = new Telegraf(process.env.BOT_TOKEN as string);
-
-mongoose.connection.on('open', async() => {
-	console.log('openDB')
-
+const initSubs = async() => {
 	const users = await UserModel.find();
 	bot.context.subs = Object.fromEntries(await Promise.all(
 		users.map(async(item) => {
@@ -40,7 +35,13 @@ mongoose.connection.on('open', async() => {
 			return [item._id, {weather, task}]
 		})
 	))
-	
+}
+
+mongoose.connection.on('open', async() => {
+	console.log('openDB')
+
+	await initSubs()
+
 	bot.catch((err: unknown, ctx: TelegrafContext) => {
 		console.log(err)
 		if(err instanceof ValidationError) {
@@ -80,7 +81,18 @@ mongoose.connection.on('open', async() => {
 	bot.help((ctx: TelegrafContext) => ctx.scene.enter('help'));
 
 	const animalSceneIds = ['cat', 'dog'];
-	const sceneIds = [...animalSceneIds, 'place', 'place-type', 'weather', 'task', 'weather-follow', 'weather-unfollow', 'weather-city', 'task-add', 'task-update']
+	const sceneIds = [
+		...animalSceneIds, 
+		'place', 
+		'place-type', 
+		'weather', 
+		'task', 
+		'weather-follow', 
+		'weather-unfollow', 
+		'weather-city', 
+		'task-add', 
+		'task-update'
+	]
 
 	sceneIds.forEach((sceneId) => {
 		const commandId = animalSceneIds.includes(sceneId) ? 'animal' : sceneId;

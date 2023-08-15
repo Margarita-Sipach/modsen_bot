@@ -1,5 +1,5 @@
-import { Compilation } from "./compilation";
-import { PlaceType } from "../../types/class";
+import { Compilation } from "./abstract";
+import { PlaceType } from "@types";
 
 interface APIError{ 
 	status?: string,

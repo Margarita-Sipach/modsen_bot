@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { boolean } from "webidl-conversions";
 
 const TaskShema = new mongoose.Schema({
 	title: {type: String, require: true},

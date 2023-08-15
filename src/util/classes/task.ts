@@ -1,11 +1,9 @@
-import { TaskModel } from "../../models/Task"
-import { sendCommandText } from './../functions/index';
-import { UserModel } from "../../models/User";
+import { TaskModel, UserModel } from "@models"
+import { sendCommandText } from '@fn';
 import { Cron } from "./cron";
-import { TelegrafContext } from "../../types";
-import { bot } from "../..";
-import { i18n } from "../../i18n";
-import { TaskType } from "../../types/class";
+import { TelegrafContext, TaskType } from "@types";
+import { i18n } from "@i18n";
+import { bot } from "@bot";
 
 export class Task {
 
@@ -21,18 +19,22 @@ export class Task {
 		this.init();
 	}
 
-	async init(){
-		const sendHTML = async({title, body}: TaskType) => {
+	sendHTML() {
+		const userId = this.userId;
+		return ({title, body, time}: TaskType) => {
 			bot.telegram.sendMessage(
-				this.userId, 
-				i18n.t('ru', 'task.info', {title, body}), 
+				userId, 
+				i18n.t('ru', 'task.info', {title, body, time}), 
 				{parse_mode: 'HTML'}
 			);
 		}
+	}
+
+	async init(){
 
 		(await this.getTasks()).forEach(item => {
 			if(item.status && item.time){
-				this.cron[String(item._id)] = new Cron(sendHTML);
+				this.cron[String(item._id)] = new Cron(this.sendHTML());
 				this.cron[String(item._id)].start(item.time, item as TaskType);
 			}
 		})
@@ -41,13 +43,13 @@ export class Task {
 	async add(ctx: TelegrafContext){
 
 		if(this.title && this.body){
-			const time = this.time
 			const taskInfo = {
 				title: this.title, 
 				body: this.body,
+				time: this.time
 			}
 
-			const task = await TaskModel.create({time, ...taskInfo})
+			const task = await TaskModel.create(taskInfo)
 
 			await UserModel.findByIdAndUpdate(
 				this.userId,
@@ -58,7 +60,8 @@ export class Task {
 			await ctx.replyWithHTML(ctx.i18n.t('task.info', taskInfo))
 			await sendCommandText(ctx, 'add-success')
 
-			time && this.cron[String(task._id)].start(time, taskInfo)
+			this.cron[String(task._id)] = new Cron(this.sendHTML())
+			this.time && this.cron[String(task._id)].start(this.time, taskInfo)
 
 			this.title = '';
 			this.body = '';

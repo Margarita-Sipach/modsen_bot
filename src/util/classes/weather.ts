@@ -1,10 +1,10 @@
-import { UserModel } from "../../models/User";
-import { Parent } from "./parent";
-import { capitalize } from "../functions";
-import { bot } from './../../index';
-import { WeatherType } from "../../types/class";
-import { i18n } from "../../i18n";
+import { UserModel } from "@models";
+import { Parent } from "./abstract";
+import { capitalize } from "@fn";
+import { WeatherType } from "@types";
+import { i18n } from "@i18n";
 import { Cron } from "./cron";
+import { bot } from "@bot";
 
 interface APIWeatherType{
   weather: [{ 
@@ -73,7 +73,6 @@ export class Weather extends Parent {
 	}
 
 	async follow(newTime: string){
-
 		this.cron?.cronId && this.cron?.stop()
 
 		const weatherStatus = this.status = true;

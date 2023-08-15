@@ -1,5 +1,5 @@
-import { Compilation } from "./compilation";
-import { AnimalType } from "../../types/class";
+import { Compilation } from "./abstract";
+import { AnimalType } from "@types";
 
 interface APIType{
 	photos: Array<{

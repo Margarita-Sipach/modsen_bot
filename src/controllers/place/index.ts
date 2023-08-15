@@ -1,9 +1,9 @@
-import { Markup, Scenes } from 'telegraf'
-import { Place } from '../../util/classes/place';
-import { createButton, getUserMessage, sendCommandText } from '../../util/functions';
-import { checkCity } from '../../util/functions/check';
-import { ValidationError } from '../../util/classes/err/validation';
-import { TelegrafContext } from '../../types';
+import { Scenes } from 'telegraf'
+import { Place } from '@classes';
+import { getUserMessage, sendCommandText } from '@fn';
+import { checkCity } from '@check';
+import { ValidationError } from '@err';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 
 export const placeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('place', 

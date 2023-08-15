@@ -1,8 +1,8 @@
 import { Markup, Scenes } from 'telegraf'
-import { createButton, getChatId } from '../../util/functions';
-import { TelegrafContext } from '../../types';
+import { createButton, getChatId } from '@fn';
+import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
-import { UserModel } from '../../models/User';
+import { UserModel } from '@models';
 
 export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather', 
 	async(ctx) => {

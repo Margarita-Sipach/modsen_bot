@@ -1,8 +1,7 @@
 import { Scenes } from 'telegraf'
-import { TelegrafContext } from '../../types';
-import { AnimalCommandsType } from '../../types/class';
+import { TelegrafContext, AnimalCommandsType } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
-import { getUserMessage } from '../../util/functions';
+import { getUserMessage } from '@fn';
 
 export const animalScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('animal', 
 	async(ctx) => {

@@ -9,7 +9,20 @@
     "strict": true,         
     "noImplicitAny": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+		"baseUrl": ".",
+		"paths": {
+			"@": ["src"],
+			"@i18n": ["src/i18n.ts"],
+			"@bot": ["src/bot.ts"],
+			"@fn": ["src/util/functions/index.ts"],
+			"@check": ["src/util/functions/check.ts"],
+			"@classes": ["src/util/classes/index.ts"],
+			"@models": ["src/models/index.ts"],
+			"@err": ["src/util/classes/err/index.ts"],
+			"@types": ["src/types/index.ts"],
+			"@abstract": ["src/classes/abstract/index.ts"]
+		}
   },
-	"include": ["src/**/*", "src/locales/*.json"]
+	"include": ["src/**/*", "src/locales/*.json"],
 }
