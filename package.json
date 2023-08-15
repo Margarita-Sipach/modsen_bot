@@ -8,7 +8,8 @@
     "start": "node build/index.js",
     "dev": "nodemon src/index.ts && tsc",
     "lint": "eslint --ext .js,.ts .",
-    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
+		"install": "npm ci --force"
   },
   "keywords": [],
   "author": "",
