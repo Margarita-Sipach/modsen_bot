@@ -1,5 +1,5 @@
 import { Scenes } from 'telegraf'
-import { checkTime } from '@check';
+import { checkExit, checkTime } from '@check';
 import { ValidationError } from '@err';
 import { TelegrafContext } from '@types';
 import { getUserMessage, sendText } from '@fn';
@@ -11,6 +11,7 @@ export const weatherFollowScene: WizardScene<TelegrafContext> = new Scenes.Wizar
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const time = getUserMessage(ctx)
 		if(checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'))
 		

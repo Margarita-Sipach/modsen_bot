@@ -3,6 +3,7 @@ import { createButton } from '@fn';
 import { ValidationError } from '@err';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
+import { checkExit } from '@check';
 
 export const placeTypeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('place-type', 
 	async(ctx: TelegrafContext) => {
@@ -19,6 +20,7 @@ export const placeTypeScene: WizardScene<TelegrafContext> = new Scenes.WizardSce
 		return ctx.wizard.next();
 	},
 	async(ctx: TelegrafContext) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		try{
 			const buttonId = ctx.callbackQuery?.data;
 

@@ -1,6 +1,6 @@
 import { Markup, Scenes } from 'telegraf'
 import { capitalize, createButton, getUserMessage, sendCommandText } from '@fn';
-import { checkCity } from '@check';
+import { checkCity, checkExit } from '@check';
 import { ValidationError } from '@err';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
@@ -11,6 +11,7 @@ export const weatherCityScene: WizardScene<TelegrafContext> = new Scenes.WizardS
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		try{
 			const inputCity = ctx.session.weather.changeCity = capitalize(getUserMessage(ctx));
 			if(checkCity(inputCity)) throw new ValidationError(ctx.i18n.t('error.city'))
@@ -32,6 +33,7 @@ export const weatherCityScene: WizardScene<TelegrafContext> = new Scenes.WizardS
 		}
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const buttonId = ctx.callbackQuery?.data;
 		if(buttonId === 'btn-follow') ctx.scene.enter('weather-follow');
 		return ctx.scene.leave();

@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf'
 import { Place } from '@classes';
 import { getUserMessage, sendCommandText } from '@fn';
-import { checkCity } from '@check';
+import { checkCity, checkExit } from '@check';
 import { ValidationError } from '@err';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
@@ -13,6 +13,7 @@ export const placeScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('
 		return ctx.wizard.next();
 	},
 	async(ctx: TelegrafContext) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		try{
 			const city = getUserMessage(ctx);
 			if(checkCity(city)) throw new ValidationError(ctx.i18n.t('error.city'));

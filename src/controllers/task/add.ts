@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf'
-import { checkTime } from '@check';
+import { checkExit, checkTime } from '@check';
 import { ValidationError } from '@err';
 import { TelegrafContext } from '@types';
 import { createButton, getUserMessage, sendCommandText } from '@fn';
@@ -11,12 +11,14 @@ export const taskAddScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const message = getUserMessage(ctx);
 		ctx.session.task.title = message;
 		await sendCommandText(ctx, 'add-body');
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const message = getUserMessage(ctx);
 		ctx.session.task.body = message;
 		await ctx.replyWithHTML(ctx.i18n.t('task.time'), 
@@ -28,6 +30,7 @@ export const taskAddScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const buttonId = ctx.callbackQuery?.data;
 
 		switch (buttonId) {
@@ -40,6 +43,7 @@ export const taskAddScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		}
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const time = getUserMessage(ctx);
 		if(checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'))
 		ctx.session.task.time = time;

@@ -3,6 +3,7 @@ import { createButton, getChatId } from '@fn';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 import { UserModel } from '@models';
+import { checkExit } from '@check';
 
 export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('weather', 
 	async(ctx) => {
@@ -30,6 +31,7 @@ export const weatherScene: WizardScene<TelegrafContext> = new Scenes.WizardScene
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const buttonId = ctx.callbackQuery?.data;
 
 		switch (buttonId) {

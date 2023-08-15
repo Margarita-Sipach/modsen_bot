@@ -91,13 +91,16 @@ mongoose.connection.on('open', async() => {
 		'weather-unfollow', 
 		'weather-city', 
 		'task-add', 
-		'task-update'
+		'task-update',
+		'exit'
 	]
 
 	sceneIds.forEach((sceneId) => {
 		const commandId = animalSceneIds.includes(sceneId) ? 'animal' : sceneId;
 		bot.command(sceneId, (ctx: TelegrafContext) => ctx.scene.enter(commandId));
-	} )
+	})
+
+	
 
 	bot.launch();
 })

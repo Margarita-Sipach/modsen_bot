@@ -2,6 +2,7 @@ import { Markup, Scenes } from 'telegraf'
 import { createButton, getChatId, strike } from '@fn';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
+import { checkExit } from '@check';
 
 export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task', 
 	async(ctx) => {
@@ -27,6 +28,8 @@ export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('t
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		console.log(checkExit(ctx))
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const buttonId = ctx.callbackQuery?.data;
 
 		switch (buttonId) {

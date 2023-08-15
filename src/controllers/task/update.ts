@@ -3,7 +3,7 @@ import { createButton, getChatId, getUserMessage, sendCommandText, sendText, str
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 import { ValidationError } from '@err';
-import { checkNumber } from '@check';
+import { checkExit, checkNumber } from '@check';
 
 export const taskUpdateScene: WizardScene<TelegrafContext> = new Scenes.WizardScene('task-update', 
 	async(ctx) => {
@@ -11,6 +11,7 @@ export const taskUpdateScene: WizardScene<TelegrafContext> = new Scenes.WizardSc
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const allTasks = await ctx.session.task.getTasks();
 		const taskNumber = +getUserMessage(ctx) - 1;
 
@@ -44,6 +45,7 @@ export const taskUpdateScene: WizardScene<TelegrafContext> = new Scenes.WizardSc
 		return ctx.wizard.next();
 	},
 	async(ctx) => {
+		if(checkExit(ctx)) return ctx.scene.enter('exit')
 		const buttonId = ctx.callbackQuery?.data;
 		const userId = getChatId(ctx)
 		if(!userId) return ctx.scene.leave()

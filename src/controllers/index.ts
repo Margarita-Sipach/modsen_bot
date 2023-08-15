@@ -1,5 +1,6 @@
 export { startScene } from './start';
 import { weatherCityScene } from './weather/city';
+export { exitScene } from './exit';
 export { helpScene } from './help';
 export { placeScene } from './place';
 export { weatherScene } from './weather';
