@@ -1,7 +1,7 @@
 import 'module-alias/register';
 import mongoose from "mongoose";
 import dotenv from 'dotenv';
-import { Telegraf, session, Scenes } from "telegraf";
+import { session, Scenes } from "telegraf";
 import { i18n } from "./i18n";
 import * as scenes from './controllers'
 import { TelegrafContext } from "@types";
@@ -10,7 +10,6 @@ import { Task, Weather, Animal } from '@classes';
 import { sendText } from '@fn';
 import { UserModel } from '@models';
 import { bot } from './bot';
-
 const rateLimit = require('telegraf-ratelimit')
 
 dotenv.config();

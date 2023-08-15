@@ -89,4 +89,4 @@ export class Place extends Compilation<PlaceType | string>{
 			img: place?.preview?.source
 		}
 	}
-};
+}
