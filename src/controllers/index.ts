@@ -1,5 +1,6 @@
 export { startScene } from './start';
 export { exitScene } from './exit';
+export { settingsScene } from './settings';
 export { helpScene } from './help';
 export { placeScene } from './place';
 export { weatherScene } from './weather';

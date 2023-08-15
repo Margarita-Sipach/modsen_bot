@@ -18,7 +18,7 @@ export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
         const body = item.body;
         const time = item.time ? `(${item.time})` : '';
         const info = ctx.i18n.t('task.info', { title, body, time });
-        return `${acc}\n${item.status ? strike(info) : info}`;
+        return `${acc}\n\n${item.status ? strike(info) : info}`;
       }, '') || ctx.i18n.t('task.empty');
 
     await ctx.replyWithHTML(

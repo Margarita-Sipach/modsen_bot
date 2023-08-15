@@ -96,6 +96,7 @@ mongoose.connection.on('open', async () => {
     'task-add',
     'task-update',
     'exit',
+    'settings',
   ];
 
   sceneIds.forEach(sceneId => {
