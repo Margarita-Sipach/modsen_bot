@@ -1,16 +1,18 @@
 import cron from 'node-cron';
 
-export class Cron<T>{
-	cronId: cron.ScheduledTask | null = null
+export class Cron<T> {
+  cronId: cron.ScheduledTask | null = null;
 
-	constructor(private callback: Function){}
+  constructor(private callback: Function) {}
 
-	start(time: string, ...args: T[]){
-		time = time.split(':').reverse().join(' ');
-		this.cronId = cron.schedule(`${time} * * *`, async() => this.callback(...args));
-	}
+  start(time: string, ...args: T[]) {
+    time = time.split(':').reverse().join(' ');
+    this.cronId = cron.schedule(`${time} * * *`, async () =>
+      this.callback(...args),
+    );
+  }
 
-	stop(){
-		this.cronId!.stop();
-	}
+  stop() {
+    this.cronId!.stop();
+  }
 }

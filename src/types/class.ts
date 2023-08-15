@@ -1,26 +1,26 @@
 export interface AnimalType {
-	url: string, 
-	photographer: string
+  url: string;
+  photographer: string;
 }
 
 export interface PlaceType {
-	title: string,
-	text: string,
-	link: string,
-	img: string
+  title: string;
+  text: string;
+  link: string;
+  img: string;
 }
 
 export interface WeatherType {
-	city: string;
-	desc: string;
-	temp: number
-	speed: number
+  city: string;
+  desc: string;
+  temp: number;
+  speed: number;
 }
 
 export interface TaskType {
-	title: string, 
-	body: string,
-	time: string
+  title: string;
+  body: string;
+  time: string;
 }
 
-export type AnimalCommandsType = 'cat' | 'dog'
+export type AnimalCommandsType = 'cat' | 'dog';

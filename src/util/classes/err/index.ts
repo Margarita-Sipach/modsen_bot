@@ -1,1 +1,1 @@
-export {ValidationError} from "./validation"
+export { ValidationError } from './validation';

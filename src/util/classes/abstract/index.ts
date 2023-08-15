@@ -1,2 +1,2 @@
-export {Parent} from "./parent"
-export {Compilation} from "./compilation"
+export { Parent } from './parent';
+export { Compilation } from './compilation';
