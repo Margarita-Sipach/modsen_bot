@@ -9,7 +9,8 @@
     "dev": "nodemon src/index.ts && tsc",
     "lint": "eslint --ext .js,.ts .",
     "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-		"install": "npm ci --force"
+		"install": "npm ci --force",
+		"postinstall": "npm ci --force"
   },
   "keywords": [],
   "author": "",
