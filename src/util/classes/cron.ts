@@ -6,10 +6,7 @@ export class Cron<T> {
   constructor(private callback: Function) {}
 
   start(time: string, ...args: T[]) {
-    time = time.split(':').reverse().join(' ');
-		console.log('cron start', time)
-
-    this.cronId = cron.schedule(`${time} * * *`, async () =>
+    this.cronId = cron.schedule(`${time.split(':').reverse().join(' ')} * * *`, async () =>
       {
 				console.log('shedule');
 				this.callback(...args)
