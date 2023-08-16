@@ -31,7 +31,6 @@ export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
     return ctx.wizard.next();
   },
   async ctx => {
-    console.log(checkExit(ctx));
     if (checkExit(ctx)) return ctx.scene.enter('exit');
     const buttonId = ctx.callbackQuery?.data;
 
