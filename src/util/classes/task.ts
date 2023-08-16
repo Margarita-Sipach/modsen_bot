@@ -23,7 +23,7 @@ export class Task {
     return ({ title, body, time }: TaskType) => {
       bot.telegram.sendMessage(
         userId,
-        i18n.t('ru', 'task.info', { title, body, time }),
+        i18n.t('task.info', { title, body, time }),
         { parse_mode: 'HTML' },
       );
     };

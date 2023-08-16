@@ -42,7 +42,7 @@ export class Weather extends Parent {
     const sendHTML = async (weatherInfo: WeatherType) => {
       bot.telegram.sendMessage(
         this.userId,
-        i18n.t('ru', 'weather.info', weatherInfo),
+        i18n.t('weather.info', weatherInfo),
         { parse_mode: 'HTML' },
       );
     };
