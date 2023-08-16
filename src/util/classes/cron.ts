@@ -8,7 +8,11 @@ export class Cron<T> {
   start(time: string, ...args: T[]) {
 		console.log('cron start')
     time = time.split(':').reverse().join(' ');
-    this.cronId = cron.schedule(`${time} * * *`, async () =>
+    // this.cronId = cron.schedule(`${time} * * *`, async () =>
+    //   this.callback(...args),
+    // );
+
+		this.cronId = cron.schedule(`33 11 * * *`, async () =>
       this.callback(...args),
     );
   }
