@@ -23,7 +23,7 @@ export class Task {
     return ({ title, body, time }: TaskType) => {
       bot.telegram.sendMessage(
         userId,
-        i18n.t('ru', 'task.info', { title, body, time }),
+        i18n.t('task.info', { title, body, time }),
         { parse_mode: 'HTML' },
       );
     };
@@ -54,7 +54,12 @@ export class Task {
         { new: true, useFindAndModify: false },
       );
 
-      await ctx.replyWithHTML(ctx.i18n.t('task.info', taskInfo));
+      await ctx.replyWithHTML(
+        ctx.i18n.t('task.info', {
+          ...taskInfo,
+          time: taskInfo.time ? `(${taskInfo.time})` : '',
+        }),
+      );
       await sendCommandText(ctx, 'add-success');
 
       this.cron[String(task._id)] = new Cron(this.sendHTML());

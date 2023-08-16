@@ -33,7 +33,7 @@ export const settingsScene: WizardScene<TelegrafContext> =
           const body = item.body;
           const time = `(${item.time})`;
           const info = ctx.i18n.t('task.info', { title, body, time });
-          return `${acc}\n\n${info}`;
+          return `${acc}\n${info}`;
         }, '') || ctx.i18n.t('task.empty');
 
     await ctx.replyWithHTML(ctx.i18n.t('settings.tasks', { tasks: tasksInfo }));

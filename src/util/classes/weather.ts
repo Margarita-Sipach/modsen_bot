@@ -29,10 +29,7 @@ export class Weather extends Parent {
   status: boolean = false;
 
   constructor(private readonly userId: number) {
-    super(
-      'https://api.openweathermap.org/data/2.5/weather',
-      process.env.WEATHER_KEY as string,
-    );
+    super(process.env.WEATHER_URL as string, process.env.WEATHER_KEY as string);
     this.init();
   }
 
@@ -42,7 +39,7 @@ export class Weather extends Parent {
     const sendHTML = async (weatherInfo: WeatherType) => {
       bot.telegram.sendMessage(
         this.userId,
-        i18n.t('ru', 'weather.info', weatherInfo),
+        i18n.t('weather.info', weatherInfo),
         { parse_mode: 'HTML' },
       );
     };

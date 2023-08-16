@@ -35,10 +35,7 @@ export class Place extends Compilation<PlaceType | string> {
   private placeKind: string = '';
 
   constructor() {
-    super(
-      `http://api.opentripmap.com/0.1/ru/places/`,
-      process.env.PLACE_KEY as string,
-    );
+    super(`${process.env.PLACE_URL}`, process.env.PLACE_KEY as string);
   }
 
   async setCoordinates(city: string) {

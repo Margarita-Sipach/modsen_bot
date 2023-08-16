@@ -1,7 +1,6 @@
 import 'module-alias/register';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { session, Scenes } from 'telegraf';
 import { i18n } from './i18n';
 import * as scenes from './controllers';
 import { TelegrafContext } from '@types';
@@ -10,8 +9,8 @@ import { Task, Weather, Animal } from '@classes';
 import { sendText } from '@fn';
 import { UserModel } from '@models';
 import { bot } from './bot';
+import { Scenes, session } from 'telegraf';
 const rateLimit = require('telegraf-ratelimit');
-
 dotenv.config();
 
 const startDb = async () => {
@@ -60,7 +59,7 @@ mongoose.connection.on('open', async () => {
   };
 
   const commands = i18n
-    .t('ru', 'commands')
+    .t('commands')
     .split('\n')
     .map((item: string) => {
       const [command, description] = item.split(' - ');
@@ -73,10 +72,10 @@ mongoose.connection.on('open', async () => {
   stage.register(...Object.values(scenes));
 
   bot.use(session());
-  bot.use(i18n.middleware());
   bot.use(stage.middleware());
   bot.use(rateLimit(limitConfig));
 
+  bot.context.i18n = i18n;
   bot.context.cat = new Animal('cat');
   bot.context.dog = new Animal('dog');
 
