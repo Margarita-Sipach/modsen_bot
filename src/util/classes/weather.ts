@@ -30,7 +30,7 @@ export class Weather extends Parent {
 
   constructor(private readonly userId: number) {
     super(
-      'https://api.openweathermap.org/data/2.5/weather',
+      process.env.WEATHER_URL as string,
       process.env.WEATHER_KEY as string,
     );
     this.init();
