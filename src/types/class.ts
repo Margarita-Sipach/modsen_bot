@@ -20,7 +20,7 @@ export interface WeatherType {
 export interface TaskType {
   title: string;
   body: string;
-  time: string;
+  time: Date | null;
 }
 
 export type AnimalCommandsType = 'cat' | 'dog';

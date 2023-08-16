@@ -1,7 +1,7 @@
 import { Scenes } from 'telegraf';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
-import { getChatId } from '@fn';
+import { converDateToString, getChatId } from '@fn';
 import { TaskModel, UserModel } from '@models';
 
 export const settingsScene: WizardScene<TelegrafContext> =
@@ -12,7 +12,7 @@ export const settingsScene: WizardScene<TelegrafContext> =
 
     const weather = await UserModel.findById(userId);
     const weatherInfo = {
-      time: weather!.time,
+      time: converDateToString(weather!.time),
       city: weather!.city,
     };
 
@@ -31,7 +31,7 @@ export const settingsScene: WizardScene<TelegrafContext> =
         .reduce((acc, item) => {
           const title = item.title;
           const body = item.body;
-          const time = `(${item.time})`;
+          const time = `(${converDateToString(item.time)})`;
           const info = ctx.i18n.t('task.info', { title, body, time });
           return `${acc}\n\n${info}`;
         }, '') || ctx.i18n.t('task.empty');

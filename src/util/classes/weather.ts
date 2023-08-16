@@ -1,6 +1,6 @@
 import { UserModel } from '@models';
 import { Parent } from './abstract';
-import { capitalize } from '@fn';
+import { capitalize, convertStringToDate } from '@fn';
 import { WeatherType } from '@types';
 import { i18n } from '@i18n';
 import { Cron } from './cron';
@@ -72,14 +72,10 @@ export class Weather extends Parent {
 
   async follow(newTime: string) {
     this.cron?.cronId && this.cron?.stop();
-    const [min, sec] = newTime.split(':');
-    const ms =
-      +min * 60 ** 2 * 1000 +
-      +sec * 60 * 1000 +
-      new Date().getTimezoneOffset() * 60 * 1000;
-    console.log(new Date(ms));
+
+    console.log(convertStringToDate(newTime));
     const weatherStatus = (this.status = true);
-    const time = (this.time = new Date(ms));
+    const time = (this.time = convertStringToDate(newTime));
     const city = (this.city = this.changeCity);
 
     await UserModel.findOneAndUpdate(

@@ -48,8 +48,7 @@ export const taskAddScene: WizardScene<TelegrafContext> =
       if (checkExit(ctx)) return ctx.scene.enter('exit');
       const time = getUserMessage(ctx);
       if (checkTime(time)) throw new ValidationError(ctx.i18n.t('error.time'));
-      ctx.session.task.time = time;
-      await ctx.session.task.add(ctx);
+      await ctx.session.task.add(ctx, time);
       return ctx.scene.leave();
     },
   );

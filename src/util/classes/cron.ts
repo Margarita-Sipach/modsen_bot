@@ -8,7 +8,6 @@ export class Cron<T> {
   start(time: Date, ...args: T[]) {
     console.log('cron start');
 
-    // for(let i = 0; i < 24; i++){
     //const timeArr = new Date(time).toLocaleTimeString();//.reverse().join(' ');
     // this.cronId = cron.schedule(`${time} * * *`, async () =>
     //   this.callback(...args),
@@ -20,7 +19,6 @@ export class Cron<T> {
         // this.callback(...args),
         console.log('cron hello', `${time.getMinutes()} ${time.getHours()}`),
     );
-    // }
   }
 
   stop() {

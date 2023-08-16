@@ -1,5 +1,5 @@
 import { Markup, Scenes } from 'telegraf';
-import { createButton, getChatId, strike } from '@fn';
+import { converDateToString, createButton, getChatId, strike } from '@fn';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
 import { checkExit } from '@check';
@@ -16,7 +16,7 @@ export const taskScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
       tasks.reduce((acc, item, index) => {
         const title = `${index + 1}. ${item.title}`;
         const body = item.body;
-        const time = item.time ? `(${item.time})` : '';
+        const time = item.time ? `(${converDateToString(item.time)})` : '';
         const info = ctx.i18n.t('task.info', { title, body, time });
         return `${acc}\n\n${item.status ? strike(info) : info}`;
       }, '') || ctx.i18n.t('task.empty');

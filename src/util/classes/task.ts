@@ -1,5 +1,5 @@
 import { TaskModel, UserModel } from '@models';
-import { sendCommandText } from '@fn';
+import { convertStringToDate, sendCommandText } from '@fn';
 import { Cron } from './cron';
 import { TelegrafContext, TaskType } from '@types';
 import { i18n } from '@i18n';
@@ -8,7 +8,7 @@ import { bot } from '@bot';
 export class Task {
   title: string = '';
   body: string = '';
-  time: string = '';
+  time: Date | null = null;
 
   id: string = '';
 
@@ -33,17 +33,20 @@ export class Task {
     (await this.getTasks()).forEach(item => {
       if (item.status && item.time) {
         this.cron[String(item._id)] = new Cron(this.sendHTML());
-        this.cron[String(item._id)].start(item.time, item as TaskType);
+        this.cron[String(item._id)].start(
+          item.time,
+          item as unknown as TaskType,
+        );
       }
     });
   }
 
-  async add(ctx: TelegrafContext) {
+  async add(ctx: TelegrafContext, time?: string) {
     if (this.title && this.body) {
-      const taskInfo = {
+      const taskInfo: TaskType = {
         title: this.title,
         body: this.body,
-        time: this.time,
+        time: time ? convertStringToDate(time) : null,
       };
 
       const task = await TaskModel.create(taskInfo);
@@ -54,7 +57,7 @@ export class Task {
         { new: true, useFindAndModify: false },
       );
 
-      await ctx.replyWithHTML(ctx.i18n.t('task.info', taskInfo));
+      await ctx.replyWithHTML(ctx.i18n.t('task.info', { ...taskInfo, time }));
       await sendCommandText(ctx, 'add-success');
 
       this.cron[String(task._id)] = new Cron(this.sendHTML());
@@ -62,7 +65,7 @@ export class Task {
 
       this.title = '';
       this.body = '';
-      this.time = '';
+      this.time = null;
     }
   }
 

@@ -40,4 +40,16 @@ export const getUserMessage = (ctx: TelegrafContext): string =>
   (ctx.message as Message.TextMessage)?.text;
 
 export const converDateToString = (date: Date) =>
-  `${date.getHours()}:${date.getMinutes()}`;
+  `${date.getHours().toString().padStart(2, '0')}:${date
+    .getMinutes()
+    .toString()
+    .padStart(2, '0')}`;
+
+export const convertStringToDate = (date: string) => {
+  const [min, sec] = date.split(':');
+  const ms =
+    +min * 60 ** 2 * 1000 +
+    +sec * 60 * 1000 +
+    new Date().getTimezoneOffset() * 60 * 1000;
+  return new Date(ms);
+};

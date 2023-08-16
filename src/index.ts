@@ -30,7 +30,7 @@ const initSubs = async () => {
     await Promise.all(
       users.map(async item => {
         const weather = new Weather(item._id);
-        const task = 0; //new Task(item._id);
+        const task = new Task(item._id);
         return [item._id, { weather, task }];
       }),
     ),
