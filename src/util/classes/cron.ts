@@ -7,17 +7,20 @@ export class Cron<T> {
 
   start(time: string, ...args: T[]) {
 		console.log('cron start')
-		console.log('12:15')
+		console.log(args)
 
-    time = time.split(':').reverse().join(' ');
-    // this.cronId = cron.schedule(`${time} * * *`, async () =>
-    //   this.callback(...args),
-    // );
-
-		this.cronId = cron.schedule(`28 12 * * *`, async () =>
-      // this.callback(...args),
-			console.log('cron hello', args)
-    );
+		for(let i = 0; i < 24; i++){
+			const timeArr = time.split(':');//.reverse().join(' ');
+			// this.cronId = cron.schedule(`${time} * * *`, async () =>
+			//   this.callback(...args),
+			// );
+	
+			this.cronId = cron.schedule(`${timeArr[1]} ${i} * * *`, async () =>
+				// this.callback(...args),
+				console.log('cron hello', timeArr[1], i)
+			);
+		}
+    
   }
 
   stop() {
