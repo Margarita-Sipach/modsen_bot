@@ -11,8 +11,9 @@ export class Cron<T> {
     // this.cronId = cron.schedule(`${time} * * *`, async () =>
     //   this.callback(...args),
     // );
+		console.log('11:38')
 
-		this.cronId = cron.schedule(`33 11 * * *`, async () =>
+		this.cronId = cron.schedule(`38 11 * * *`, async () =>
       this.callback(...args),
     );
   }
