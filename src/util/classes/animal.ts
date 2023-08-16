@@ -13,7 +13,7 @@ interface APIType {
 export class Animal extends Compilation<AnimalType> {
   constructor(animal: string) {
     super(
-      `http://api.pexels.com/v1/search?query=${animal}`,
+      `${process.env.ANIMALS_URL}?query=${animal}`,
       process.env.ANIMALS_KEY as string,
     );
     this.getAllElements();

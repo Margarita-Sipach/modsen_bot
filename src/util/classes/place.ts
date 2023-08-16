@@ -36,7 +36,7 @@ export class Place extends Compilation<PlaceType | string> {
 
   constructor() {
     super(
-      `http://api.opentripmap.com/0.1/ru/places/`,
+      `${process.env.PLACE_URL}`,
       process.env.PLACE_KEY as string,
     );
   }
