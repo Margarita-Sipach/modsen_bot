@@ -8,9 +8,7 @@
     "start": "node build/index.js",
     "dev": "nodemon src/index.ts && tsc",
     "lint": "eslint --ext .js,.ts .",
-    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\"",
-		"install": "npm ci --force",
-		"postinstall": "npm ci --force"
+    "prettier": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
   },
   "keywords": [],
   "author": "",
@@ -23,7 +21,6 @@
     "mongoose": "^7.4.2",
     "node-cron": "^3.0.2",
     "telegraf": "^4.12.2",
-    "telegraf-i18n": "^6.6.0",
     "telegraf-ratelimit": "^2.0.0"
   },
   "devDependencies": {

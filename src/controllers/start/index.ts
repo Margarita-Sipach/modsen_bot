@@ -4,6 +4,7 @@ import { getChatId, sendCommandText } from '@fn';
 import { TelegrafContext } from '@types';
 import { Task, Weather } from '@classes';
 import { WizardScene } from 'telegraf/typings/scenes';
+import { Message } from 'telegraf/typings/core/types/typegram';
 
 export const startScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
   'start',
@@ -22,7 +23,9 @@ export const startScene: WizardScene<TelegrafContext> = new Scenes.WizardScene(
       };
     }
 
-    await sendCommandText(ctx, 'hello', { ctx });
+    const name =
+      (ctx.message as Message.TextMessage).from?.first_name || 'Гость';
+    await sendCommandText(ctx, 'hello', { name });
     return ctx.scene.leave();
   },
 );
