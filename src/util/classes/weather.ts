@@ -29,10 +29,7 @@ export class Weather extends Parent {
   status: boolean = false;
 
   constructor(private readonly userId: number) {
-    super(
-      process.env.WEATHER_URL as string,
-      process.env.WEATHER_KEY as string,
-    );
+    super(process.env.WEATHER_URL as string, process.env.WEATHER_KEY as string);
     this.init();
   }
 

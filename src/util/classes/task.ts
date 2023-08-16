@@ -54,7 +54,12 @@ export class Task {
         { new: true, useFindAndModify: false },
       );
 
-      await ctx.replyWithHTML(ctx.i18n.t('task.info', taskInfo));
+      await ctx.replyWithHTML(
+        ctx.i18n.t('task.info', {
+          ...taskInfo,
+          time: taskInfo.time ? `(${taskInfo.time})` : '',
+        }),
+      );
       await sendCommandText(ctx, 'add-success');
 
       this.cron[String(task._id)] = new Cron(this.sendHTML());
