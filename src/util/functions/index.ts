@@ -47,6 +47,7 @@ export const converDateToString = (date: Date) =>
 
 export const convertStringToDate = (date: string) => {
   const [min, sec] = date.split(':');
+	console.log('getTimezoneOffset', new Date().getTimezoneOffset());
   const ms =
     +min * 60 ** 2 * 1000 +
     +sec * 60 * 1000 +
