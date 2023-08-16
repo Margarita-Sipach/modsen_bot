@@ -24,15 +24,12 @@ interface APIWeatherType {
 export class Weather extends Parent {
   changeCity: string = '';
   city: string = '';
-  time: string = '';
+  time: Date | null = null;
   cron: Cron<WeatherType> | null = null;
   status: boolean = false;
 
   constructor(private readonly userId: number) {
-    super(
-      process.env.WEATHER_URL as string,
-      process.env.WEATHER_KEY as string,
-    );
+    super(process.env.WEATHER_URL as string, process.env.WEATHER_KEY as string);
     this.init();
   }
 
@@ -53,7 +50,6 @@ export class Weather extends Parent {
       this.changeCity = this.city = userInfo?.city;
       this.time = userInfo?.time;
       const weatherInfo = await this.getWeatherInfo();
-
       this.cron.start(this.time, weatherInfo);
     }
   }
@@ -76,9 +72,14 @@ export class Weather extends Parent {
 
   async follow(newTime: string) {
     this.cron?.cronId && this.cron?.stop();
-
+    const [min, sec] = newTime.split(':');
+    const ms =
+      +min * 60 ** 2 * 1000 +
+      +sec * 60 * 1000 +
+      new Date().getTimezoneOffset() * 60 * 1000;
+    console.log(new Date(ms));
     const weatherStatus = (this.status = true);
-    const time = (this.time = newTime);
+    const time = (this.time = new Date(ms));
     const city = (this.city = this.changeCity);
 
     await UserModel.findOneAndUpdate(
@@ -92,7 +93,7 @@ export class Weather extends Parent {
 
   async unfollow() {
     const weatherStatus = (this.status = false);
-    const time = (this.time = '');
+    const time = (this.time = null);
     const city = (this.city = '');
 
     await UserModel.findOneAndUpdate(

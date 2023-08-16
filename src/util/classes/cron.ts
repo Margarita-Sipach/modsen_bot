@@ -5,26 +5,26 @@ export class Cron<T> {
 
   constructor(private callback: Function) {}
 
-  start(time: string, ...args: T[]) {
-		console.log('cron start')
-		console.log(args)
+  start(time: Date, ...args: T[]) {
+    console.log('cron start');
 
-		for(let i = 0; i < 24; i++){
-			const timeArr = time.split(':');//.reverse().join(' ');
-			// this.cronId = cron.schedule(`${time} * * *`, async () =>
-			//   this.callback(...args),
-			// );
-	
-			this.cronId = cron.schedule(`${timeArr[1]} ${i} * * *`, async () =>
-				// this.callback(...args),
-				console.log('cron hello', timeArr[1], i)
-			);
-		}
-    
+    // for(let i = 0; i < 24; i++){
+    //const timeArr = new Date(time).toLocaleTimeString();//.reverse().join(' ');
+    // this.cronId = cron.schedule(`${time} * * *`, async () =>
+    //   this.callback(...args),
+    // );
+    console.log(time, `${time.getUTCMinutes()} ${time.getUTCHours()} * * *`);
+    this.cronId = cron.schedule(
+      `${time.getUTCMinutes()} ${time.getUTCHours()} * * *`,
+      async () =>
+        // this.callback(...args),
+        console.log('cron hello', `${time.getMinutes()} ${time.getHours()}`),
+    );
+    // }
   }
 
   stop() {
-		console.log('cron stop')
+    console.log('cron stop');
     this.cronId!.stop();
   }
 }

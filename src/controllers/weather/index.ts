@@ -1,8 +1,7 @@
 import { Markup, Scenes } from 'telegraf';
-import { createButton, getChatId } from '@fn';
+import { converDateToString, createButton, getChatId } from '@fn';
 import { TelegrafContext } from '@types';
 import { WizardScene } from 'telegraf/typings/scenes';
-import { UserModel } from '@models';
 import { checkExit } from '@check';
 
 export const weatherScene: WizardScene<TelegrafContext> =
@@ -19,11 +18,15 @@ export const weatherScene: WizardScene<TelegrafContext> =
         ? [createButton(ctx, 'unfollow', { city: ctx.session.weather.city })]
         : [];
 
-      const info = await UserModel.findById(chatId);
+      const info = ctx.session.weather;
 
-      const sendInfo = ctx.session.weather.status
-        ? ctx.i18n.t('weather.followed', { city: info?.city, time: info?.time })
-        : ctx.i18n.t('weather.unfollowed');
+      const sendInfo =
+        info.time && info.status && info.city
+          ? ctx.i18n.t('weather.followed', {
+              city: info?.city,
+              time: converDateToString(info?.time),
+            })
+          : ctx.i18n.t('weather.unfollowed');
 
       await ctx.replyWithHTML(
         sendInfo,

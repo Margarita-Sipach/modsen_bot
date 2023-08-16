@@ -38,3 +38,6 @@ export const sendCommandText = (
 
 export const getUserMessage = (ctx: TelegrafContext): string =>
   (ctx.message as Message.TextMessage)?.text;
+
+export const converDateToString = (date: Date) =>
+  `${date.getHours()}:${date.getMinutes()}`;
