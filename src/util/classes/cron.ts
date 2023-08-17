@@ -6,8 +6,8 @@ export class Cron<T> {
   constructor(private callback: Function) {}
 
   start(time: string, ...args: T[]) {
-    time = time.split(':').reverse().join(' ');
-    this.cronId = cron.schedule(`${time} * * *`, async () =>
+    const timeArr = time.split(':').reverse();
+    this.cronId = cron.schedule(`${timeArr[0]} ${+timeArr[1] - 3} * * *`, async () =>
       this.callback(...args),
     );
   }
