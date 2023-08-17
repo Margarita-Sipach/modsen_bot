@@ -31,7 +31,7 @@ export class Task {
 
   async init() {
     (await this.getTasks()).forEach(item => {
-      if (item.status && item.time) {
+      if (!item.status && item.time) {
         this.cron[String(item._id)] = new Cron(this.sendHTML());
         this.cron[String(item._id)].start(item.time, item as TaskType);
       }
